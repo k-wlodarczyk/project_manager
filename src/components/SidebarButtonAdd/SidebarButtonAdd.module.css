@@ -1,0 +1,15 @@
+.btnAdd {
+  background: none;
+  border: none;
+  padding: 0 0.8rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 2.5rem;
+  /* display: flex; */
+  /* flex: 1; */
+  /* height: 100%; */
+}
+
+.btnAdd:hover {
+  background-color: #e6e6e6;
+}

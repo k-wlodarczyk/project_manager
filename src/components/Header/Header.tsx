@@ -1,3 +1,5 @@
+import styles from "./Header.module.css";
+
 interface HeaderProps {
   children: React.ReactNode;
 }
@@ -5,7 +7,7 @@ interface HeaderProps {
 export default function Header({ children }: HeaderProps) {
   return (
     <header>
-      <h1>{children}</h1>
+      <h1 className={styles.header}>{children}</h1>
     </header>
   );
 }
