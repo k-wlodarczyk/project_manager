@@ -1,11 +1,3 @@
-.elements {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  margin-top: 1.6rem;
-  padding: 0.6rem 1.2rem;
-}
-
 .element {
   display: flex;
   align-items: center;

@@ -1,4 +1,4 @@
-import SidebarHeader from "../SidebarHeader/SidebarHeader";
+import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 
 export default function TestCaseSection() {
   return (

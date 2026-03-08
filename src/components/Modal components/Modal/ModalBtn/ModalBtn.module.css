@@ -1,0 +1,27 @@
+button {
+  background: none;
+  border: none;
+  padding: 0.8rem 1.6rem;
+  border-radius: 1.2rem;
+  cursor: pointer;
+  transition: 0.3s ease all;
+  font-family: system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.secondary {
+  border: 2px solid #f3f3f3;
+}
+
+.secondary:hover {
+  background-color: #ccc;
+}
+
+.cta {
+  background-color: #777;
+  color: #fff;
+}
+
+.cta:hover {
+  background-color: #333;
+}

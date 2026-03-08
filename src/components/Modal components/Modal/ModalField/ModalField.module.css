@@ -1,0 +1,18 @@
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+label {
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-family: system-ui, sans-serif;
+}
+
+input {
+  background-color: #f3f3f3;
+  border: none;
+  padding: 1.2rem;
+  border-radius: 0.6rem;
+}
