@@ -1,12 +1,55 @@
 import styles from "./SidebarItem.module.css";
-export default function SidebarItem() {
+import clsx from "clsx";
+import { Link } from "react-router-dom";
+
+interface SidebarItemProps {
+  type: "projects" | "modules";
+  projectId: number;
+  moduleId?: number;
+  description?: string;
+  projectUrl?: string;
+  onClick: () => void;
+  isSelected: boolean;
+  children: React.ReactNode;
+}
+
+export default function SidebarItem({
+  type,
+  projectId,
+  moduleId,
+  children,
+  onClick,
+  isSelected,
+}: SidebarItemProps) {
+  const config = {
+    projects: {
+      path: `/project/${projectId}`,
+      icon: "folder-open-outline",
+    },
+    modules: {
+      path: `/project/${projectId}/module/${moduleId}`,
+      icon: "book-outline",
+    },
+  };
+
+  const currentConfig = config[type];
+
+  const linkPath = currentConfig.path;
+
   return (
-    <div className={styles.element}>
-      <ion-icon name="folder-open-outline"></ion-icon>
-      <div>
-        <p className={styles.projectName}>Tic tac toe - react </p>
-        <p className={styles.projectDetails}>2 tests</p>
+    <Link to={linkPath} className={styles.sidebarLink}>
+      <div
+        className={clsx(styles.element, {
+          [styles.selected]: isSelected,
+        })}
+        onClick={onClick}
+      >
+        <ion-icon name={currentConfig.icon}></ion-icon>
+        <div>
+          <p className={styles.projectName}>{children}</p>
+          <p className={styles.projectDetails}>2 tests</p>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

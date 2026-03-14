@@ -1,3 +1,9 @@
 .sidebar {
   border-right: 1px solid #e6e6e6;
 }
+
+.elements {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}

@@ -18,8 +18,15 @@ ion-icon {
   font-size: 2rem;
 }
 
-.element:hover {
+.element:hover,
+.selected {
   background-color: #e6e6e6;
   cursor: pointer;
   border-radius: 1.2rem;
+}
+
+.sidebarLink {
+  color: inherit;
+  text-decoration: none;
+  display: block;
 }
