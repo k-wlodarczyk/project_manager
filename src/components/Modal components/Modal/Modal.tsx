@@ -4,18 +4,13 @@ import { useHotkeys } from "react-hotkeys-hook";
 import ModalField from "../ModalField/ModalField";
 import ModalBtn from "../ModalBtn/ModalBtn";
 import { useState } from "react";
-import { supabase } from "../../../supabaseClient";
-import { useParams } from "react-router-dom";
-
-interface FieldConfig {
-  name: string;
-  label: string;
-  placeholder?: string;
-  type?: string;
-}
+import type { FieldConfig } from "../../../types/modal";
+import ModalTestCaseSteps from "../ModalTestCaseSteps/ModalTestCaseSteps";
+import { useModalSubmit } from "../../../hooks/useModalSubmit";
+import { useTestCaseSteps } from "../../../hooks/useTestCaseSteps";
 
 interface ModalProps {
-  type: "projects" | "modules";
+  type: "projects" | "modules" | "testCases";
   onCancel: () => void;
   onSuccess: (newItem: any) => void;
   fields: FieldConfig[];
@@ -33,7 +28,11 @@ export default function Modal({
 }: ModalProps) {
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
-  const { projectId } = useParams();
+  const { testCaseSteps, newStep, updateSteps } = useTestCaseSteps();
+  const { submitProject, submitModules, submitTestCases } = useModalSubmit({
+    onSuccess,
+    onCancel,
+  });
 
   const [formData, setFormData] = useState<Record<string, string>>(() => {
     return fields.reduce((acc, field) => ({ ...acc, [field.name]: "" }), {});
@@ -43,44 +42,11 @@ export default function Modal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
-    if (!formData.name) return alert("Project name is required");
-
-    const { data, error } = await supabase.from("projects").insert([
-      {
-        title: formData.name,
-        description: formData.description,
-        url: formData.link,
-      },
-    ]);
-
-    if (error) {
-      console.log(error.message);
-    } else {
-      console.log("Success", data);
-      onCancel();
-    }
-  };
-
-  const handleSubmitModules = async () => {
-    const { data, error } = await supabase
-      .from("modules")
-      .insert([
-        {
-          title: formData.name,
-          description: formData.description,
-          project_id: projectId,
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.log(error.message);
-    } else {
-      onSuccess(data[0]);
-      onCancel();
-    }
-  };
+  function handleSubmit() {
+    if (type === "projects") return submitProject(formData);
+    if (type === "modules") return submitModules(formData);
+    if (type === "testCases") return submitTestCases(formData, testCaseSteps);
+  }
 
   return createPortal(
     <div className={styles.modalOverlay} onClick={onCancel}>
@@ -95,23 +61,32 @@ export default function Modal({
             return (
               <ModalField
                 key={field.name}
+                name={field.name}
                 label={field.label}
+                disabled={field.disabled || false}
                 placeholder={field.placeholder}
                 type={field.type || "text"}
                 value={formData[field.name]}
+                defaultValue={field.defaultValue || ""}
+                options={field.options}
                 onChange={(e: any) => handleChange(field.name, e.target.value)}
               />
             );
           })}
+
+          {type === "testCases" && (
+            <ModalTestCaseSteps
+              testCaseSteps={testCaseSteps}
+              handleNewTestCaseStep={newStep}
+              handleUpdateTestCaseSteps={updateSteps}
+            />
+          )}
         </div>
         <div className={styles.modalBtns}>
           <ModalBtn type="secondary" onClick={onCancel}>
             Cancel
           </ModalBtn>
-          <ModalBtn
-            type="cta"
-            onClick={type === "projects" ? handleSubmit : handleSubmitModules}
-          >
+          <ModalBtn type="cta" onClick={handleSubmit}>
             Submit
           </ModalBtn>
         </div>

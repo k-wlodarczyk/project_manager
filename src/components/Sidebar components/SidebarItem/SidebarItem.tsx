@@ -8,7 +8,6 @@ interface SidebarItemProps {
   moduleId?: number;
   description?: string;
   projectUrl?: string;
-  onClick: () => void;
   isSelected: boolean;
   children: React.ReactNode;
 }
@@ -18,7 +17,6 @@ export default function SidebarItem({
   projectId,
   moduleId,
   children,
-  onClick,
   isSelected,
 }: SidebarItemProps) {
   const config = {
@@ -42,7 +40,6 @@ export default function SidebarItem({
         className={clsx(styles.element, {
           [styles.selected]: isSelected,
         })}
-        onClick={onClick}
       >
         <ion-icon name={currentConfig.icon}></ion-icon>
         <div>
