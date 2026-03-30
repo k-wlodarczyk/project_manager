@@ -1,0 +1,16 @@
+div {
+  text-align: center;
+}
+
+.item {
+  background-color: #e6e6e6;
+  padding: 2rem;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1.5rem;
+}
+
+.item:hover {
+  cursor: pointer;
+}

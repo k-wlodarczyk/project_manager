@@ -3,12 +3,17 @@ import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 import Modal from "../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
+import { useFetchItems } from "../../hooks/useFetchItems";
+import TestCaseItem from "../TestCaseItem/TestCaseItem";
+import styles from "./TestCasesSection.module.css";
 
 export default function TestCaseSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modules, setModules] = useState<{ id: number; title: string }[]>([]);
 
   const { projectId, moduleId } = useParams();
+
+  const { data: testCases, refresh } = useFetchItems("test_cases");
 
   useEffect(() => {
     async function fetchModules() {
@@ -28,7 +33,7 @@ export default function TestCaseSection() {
 
   const foundModule = modules.find((m) => String(m.id) === String(moduleId));
 
-  const title = foundModule ? foundModule.title : "Nie znaleziono modułu";
+  const title = foundModule ? foundModule.title : "";
 
   const testCaseFields = [
     {
@@ -54,13 +59,21 @@ export default function TestCaseSection() {
     <div>
       <SidebarHeader title="Test cases" onClick={() => setIsModalOpen(true)} />
 
+      <ul>
+        {testCases.map((testCase) => (
+          <li key={testCase.id}>
+            <TestCaseItem name={testCase.title} />
+          </li>
+        ))}
+      </ul>
+
       {isModalOpen && (
         <Modal
           type="testCases"
           title="New test case"
           subtitle="Add test case"
           onCancel={() => setIsModalOpen(false)}
-          onSuccess={() => setIsModalOpen(false)}
+          onSuccess={refresh}
           fields={testCaseFields}
         />
       )}

@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 const SELECT_FIELDS = {
   projects: "id, title",
   modules: "id, title",
-  test_cases: "id, action",
+  test_cases: "id, title",
 };
 
 export function useFetchItems(type: "projects" | "modules" | "test_cases") {
