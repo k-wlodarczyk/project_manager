@@ -9,41 +9,40 @@ import styles from "./TestCasesSection.module.css";
 
 export default function TestCaseSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modules, setModules] = useState<{ id: number; title: string }[]>([]);
+  const [selectedTestCaseId, setSelectedTestCaseId] = useState<
+    number | undefined
+  >(undefined);
 
   const { projectId, moduleId } = useParams();
 
-  const { data: testCases, refresh } = useFetchItems("test_cases");
+  const { data: testCases, refresh } = useFetchItems("test_cases", "view");
+  const { data: modules } = useFetchItems("modules", "view");
 
-  useEffect(() => {
-    async function fetchModules() {
-      if (!projectId) return;
+  const modalMode = selectedTestCaseId ? "view" : "create";
 
-      const { data } = await supabase
-        .from("modules")
-        .select("id, title")
-        .eq("project_id", projectId);
+  function showViewTestCaseModal(id: number) {
+    setSelectedTestCaseId(id);
+    setIsModalOpen(true);
+  }
 
-      if (data) {
-        setModules(data);
-      }
-    }
-    fetchModules();
-  }, [projectId]);
+  function showCreateTestCaseModal() {
+    setIsModalOpen(true);
+  }
 
-  const foundModule = modules.find((m) => String(m.id) === String(moduleId));
-
-  const title = foundModule ? foundModule.title : "";
+  function handleCloseModal() {
+    setIsModalOpen(false);
+    setSelectedTestCaseId(undefined);
+  }
 
   const testCaseFields = [
     {
-      name: "moduleId",
+      name: "module_id",
       label: "Module",
       type: "select",
 
-      options: modules.map((module) => ({
+      options: modules?.map((module: any) => ({
         value: module.id,
-        label: module.title,
+        label: module.name,
       })),
       defaultValue: moduleId || "",
     },
@@ -57,12 +56,16 @@ export default function TestCaseSection() {
 
   return (
     <div>
-      <SidebarHeader title="Test cases" onClick={() => setIsModalOpen(true)} />
+      <SidebarHeader title="Test cases" onClick={showCreateTestCaseModal} />
 
       <ul>
-        {testCases.map((testCase) => (
+        {testCases?.map((testCase: any) => (
           <li key={testCase.id}>
-            <TestCaseItem name={testCase.title} />
+            <TestCaseItem
+              id={testCase.id}
+              name={testCase.name}
+              onClick={showViewTestCaseModal}
+            />
           </li>
         ))}
       </ul>
@@ -72,9 +75,11 @@ export default function TestCaseSection() {
           type="testCases"
           title="New test case"
           subtitle="Add test case"
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={handleCloseModal}
           onSuccess={refresh}
           fields={testCaseFields}
+          objectId={selectedTestCaseId}
+          viewMode={modalMode}
         />
       )}
     </div>

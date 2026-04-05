@@ -3,40 +3,95 @@ import styles from "./Modal.module.css";
 import { useHotkeys } from "react-hotkeys-hook";
 import ModalField from "../ModalField/ModalField";
 import ModalBtn from "../ModalBtn/ModalBtn";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FieldConfig } from "../../../types/modal";
 import ModalTestCaseSteps from "../ModalTestCaseSteps/ModalTestCaseSteps";
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import { useTestCaseSteps } from "../../../hooks/useTestCaseSteps";
+import { useFetchItems } from "../../../hooks/useFetchItems";
 
 interface ModalProps {
   type: "projects" | "modules" | "testCases";
+  viewMode?: "view" | "create";
   onCancel: () => void;
   onSuccess: (newItem: any) => void;
   fields: FieldConfig[];
   title: string;
   subtitle?: string;
+  objectId?: number;
 }
+
+const DB_TYPE = {
+  projects: "projects",
+  modules: "modules",
+  testCases: "test_cases",
+};
 
 export default function Modal({
   type,
+  viewMode,
   onCancel,
   onSuccess,
   fields,
   title,
   subtitle,
+  objectId,
 }: ModalProps) {
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
-  const { testCaseSteps, newStep, updateSteps } = useTestCaseSteps();
+  const dbType = DB_TYPE[type];
+
+  const { data: fetchedItem } = useFetchItems(
+    dbType as "projects" | "modules" | "test_cases",
+    viewMode,
+    objectId,
+  );
+
+  const { data: fetchedSteps } = useFetchItems(
+    "test_case_steps",
+    viewMode,
+    objectId,
+  );
+
+  const { testCaseSteps, newStep, updateSteps } =
+    useTestCaseSteps(fetchedSteps);
   const { submitProject, submitModules, submitTestCases } = useModalSubmit({
     onSuccess,
     onCancel,
   });
 
   const [formData, setFormData] = useState<Record<string, string>>(() => {
-    return fields.reduce((acc, field) => ({ ...acc, [field.name]: "" }), {});
+    return fields.reduce(
+      (acc, field) => ({ ...acc, [field.name]: field.defaultValue || "" }),
+      {},
+    );
   });
+
+  useEffect(() => {
+    if (
+      viewMode === "view" &&
+      objectId &&
+      fetchedItem &&
+      !Array.isArray(fetchedItem)
+    ) {
+      setFormData((prev) => {
+        const updated = { ...prev };
+
+        fields.forEach((field) => {
+          const item = fetchedItem as any;
+
+          if (item[field.name] !== undefined) {
+            updated[field.name] = String(item[field.name] || "");
+          }
+        });
+
+        return updated;
+      });
+    }
+  }, [fetchedItem, viewMode, fields, objectId]);
+
+  console.log("formData", formData);
+  console.log("fetchedItem", fetchedItem);
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));

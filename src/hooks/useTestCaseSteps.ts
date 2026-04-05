@@ -1,9 +1,31 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
-export function useTestCaseSteps() {
-  const [testCaseSteps, setTestCaseSteps] = useState([
-    { id: 1, action: "", expected: "" },
-  ]);
+export function useTestCaseSteps(fetchedSteps?: any[]) {
+  const [testCaseSteps, setTestCaseSteps] = useState(() => {
+    if (fetchedSteps && fetchedSteps.length > 0) {
+      return fetchedSteps.map((step) => ({
+        id: step.id,
+        action: step.action,
+        expected: step.expected_result,
+      }));
+    } else {
+      return [{ id: 1, action: "", expected: "" }];
+    }
+  });
+
+  useEffect(() => {
+    if (fetchedSteps && fetchedSteps.length > 0) {
+      const formattedSteps = fetchedSteps.map((step) => ({
+        id: step.id,
+        action: step.action,
+        expected: step.expected_result,
+      }));
+      setTestCaseSteps(formattedSteps);
+    } else {
+      setTestCaseSteps([{ id: 1, action: "", expected: "" }]);
+    }
+  }, [fetchedSteps]);
 
   function newStep() {
     const newStep = {
@@ -23,5 +45,14 @@ export function useTestCaseSteps() {
     );
   }
 
-  return { testCaseSteps, newStep, updateSteps };
+  const fetchSteps = useCallback(async (testCaseId: number) => {
+    const { data, error } = await supabase
+      .from("test_case_steps")
+      .select("id, action, expected_result")
+      .eq("test_case_id", testCaseId);
+
+    return data || [];
+  }, []);
+
+  return { testCaseSteps, newStep, updateSteps, fetchSteps };
 }

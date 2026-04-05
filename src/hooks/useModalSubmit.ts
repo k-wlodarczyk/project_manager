@@ -14,7 +14,7 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
 
     const { data, error } = await supabase.from("projects").insert([
       {
-        title: formData.name,
+        name: formData.name,
         description: formData.description,
         url: formData.link,
       },
@@ -31,7 +31,7 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
       .from("modules")
       .insert([
         {
-          title: formData.name,
+          name: formData.name,
           description: formData.description,
           project_id: projectId,
         },
@@ -49,7 +49,8 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
       .from("test_cases")
       .insert([
         {
-          title: formData.name,
+          name: formData.name,
+          description: formData.description,
           project_id: projectId,
           module_id: formData.moduleId,
         },

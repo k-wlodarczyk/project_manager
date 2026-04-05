@@ -32,7 +32,7 @@ export default function ModalField({
           name={name}
           onChange={onChange}
           disabled={disabled}
-          defaultValue={defaultValue}
+          value={value}
         >
           <option value="" disabled>
             Select an option
@@ -48,6 +48,7 @@ export default function ModalField({
         <input
           name={name}
           type={type === "select" ? "text" : type}
+          value={value ?? ""}
           onChange={onChange}
           disabled={disabled}
           placeholder={placeholder}

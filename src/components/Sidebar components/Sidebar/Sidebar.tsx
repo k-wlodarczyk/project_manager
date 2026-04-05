@@ -15,6 +15,7 @@ export default function Sidebar({ type }: SidebarProps) {
 
   const { data, refresh } = useFetchItems(
     type === "projects" ? "projects" : "modules",
+    "view",
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +60,7 @@ export default function Sidebar({ type }: SidebarProps) {
         onClick={() => setIsModalOpen(true)}
       />
       <ul className={styles.elements}>
-        {data.map((item) => {
+        {data?.map((item: any) => {
           const isProjectType = type === "projects";
 
           return (
@@ -72,7 +73,7 @@ export default function Sidebar({ type }: SidebarProps) {
                   item.id.toString() === (isProjectType ? projectId : moduleId)
                 }
               >
-                {item.title}
+                {item.name}
               </SidebarItem>
             </li>
           );
