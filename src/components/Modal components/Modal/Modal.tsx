@@ -9,11 +9,14 @@ import ModalTestCaseSteps from "../ModalTestCaseSteps/ModalTestCaseSteps";
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import { useTestCaseSteps } from "../../../hooks/useTestCaseSteps";
 import { useFetchItems } from "../../../hooks/useFetchItems";
+import ModalActionBtns from "../ModalActionBtns/ModalActionBtns";
 
 interface ModalProps {
   type: "projects" | "modules" | "testCases";
-  viewMode?: "view" | "create";
+  viewMode: "view" | "create" | "edit";
   onCancel: () => void;
+  onEdit: () => void;
+  onCancelEdit: () => void;
   onSuccess: (newItem: any) => void;
   fields: FieldConfig[];
   title: string;
@@ -31,6 +34,8 @@ export default function Modal({
   type,
   viewMode,
   onCancel,
+  onEdit,
+  onCancelEdit,
   onSuccess,
   fields,
   title,
@@ -40,6 +45,7 @@ export default function Modal({
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
   const dbType = DB_TYPE[type];
+  const shouldDisableFields = viewMode === "view";
 
   const { data: fetchedItem } = useFetchItems(
     dbType as "projects" | "modules" | "test_cases",
@@ -55,9 +61,17 @@ export default function Modal({
 
   const { testCaseSteps, newStep, updateSteps } =
     useTestCaseSteps(fetchedSteps);
-  const { submitProject, submitModules, submitTestCases } = useModalSubmit({
+  const {
+    submitProject,
+    updateProject,
+    submitModules,
+    updateModule,
+    submitTestCases,
+    updateTestCase,
+  } = useModalSubmit({
     onSuccess,
     onCancel,
+    onCancelEdit,
   });
 
   const [formData, setFormData] = useState<Record<string, string>>(() => {
@@ -90,21 +104,36 @@ export default function Modal({
     }
   }, [fetchedItem, viewMode, fields, objectId]);
 
-  console.log("formData", formData);
-  console.log("fetchedItem", fetchedItem);
-
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   function handleSubmit() {
-    if (type === "projects") return submitProject(formData);
-    if (type === "modules") return submitModules(formData);
-    if (type === "testCases") return submitTestCases(formData, testCaseSteps);
+    const isNewRecord = viewMode === "create";
+
+    if (type === "projects") {
+      return isNewRecord ? submitProject(formData) : updateProject(formData);
+    }
+    if (type === "modules") {
+      return isNewRecord
+        ? submitModules(formData)
+        : updateModule(formData, objectId!);
+    }
+    if (type === "testCases") {
+      return isNewRecord
+        ? submitTestCases(formData, testCaseSteps)
+        : updateTestCase(formData, testCaseSteps, objectId!);
+    }
+  }
+
+  function handleOverlayClick() {
+    if (viewMode === "view") {
+      onCancel();
+    }
   }
 
   return createPortal(
-    <div className={styles.modalOverlay} onClick={onCancel}>
+    <div className={styles.modalOverlay} onClick={handleOverlayClick}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeBtn} onClick={onCancel}>
           &times;
@@ -118,8 +147,8 @@ export default function Modal({
                 key={field.name}
                 name={field.name}
                 label={field.label}
-                disabled={field.disabled || false}
-                placeholder={field.placeholder}
+                disabled={shouldDisableFields}
+                placeholder={shouldDisableFields ? "" : field.placeholder}
                 type={field.type || "text"}
                 value={formData[field.name]}
                 defaultValue={field.defaultValue || ""}
@@ -134,16 +163,20 @@ export default function Modal({
               testCaseSteps={testCaseSteps}
               handleNewTestCaseStep={newStep}
               handleUpdateTestCaseSteps={updateSteps}
+              disabled={shouldDisableFields}
             />
           )}
         </div>
         <div className={styles.modalBtns}>
-          <ModalBtn type="secondary" onClick={onCancel}>
-            Cancel
-          </ModalBtn>
-          <ModalBtn type="cta" onClick={handleSubmit}>
-            Submit
-          </ModalBtn>
+          <ModalActionBtns
+            viewMode={viewMode}
+            disabled={shouldDisableFields}
+            onCancel={onCancel}
+            onSubmitNew={handleSubmit}
+            onEdit={onEdit}
+            onCancelEdit={onCancelEdit}
+            onSubmitEdit={handleSubmit}
+          />
         </div>
       </div>
     </div>,

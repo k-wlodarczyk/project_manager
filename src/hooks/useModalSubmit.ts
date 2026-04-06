@@ -4,9 +4,14 @@ import { supabase } from "../supabaseClient";
 interface useModalSubmitProps {
   onSuccess: (data: any) => void;
   onCancel: () => void;
+  onCancelEdit: () => void;
 }
 
-export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
+export function useModalSubmit({
+  onSuccess,
+  onCancel,
+  onCancelEdit,
+}: useModalSubmitProps) {
   const { projectId, moduleId } = useParams();
 
   const submitProject = async (formData: any) => {
@@ -26,6 +31,8 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
     }
   };
 
+  const updateProject = async (formData: any) => {};
+
   const submitModules = async (formData: any) => {
     const { data, error } = await supabase
       .from("modules")
@@ -44,6 +51,8 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
     }
   };
 
+  const updateModule = async (formData: any, id: number) => {};
+
   const submitTestCases = async (formData: any, steps: any[]) => {
     const { data: testCase, error } = await supabase
       .from("test_cases")
@@ -52,7 +61,7 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
           name: formData.name,
           description: formData.description,
           project_id: projectId,
-          module_id: formData.moduleId,
+          module_id: formData.module_id,
         },
       ])
       .select()
@@ -81,5 +90,34 @@ export function useModalSubmit({ onSuccess, onCancel }: useModalSubmitProps) {
     }
   };
 
-  return { submitProject, submitModules, submitTestCases };
+  const updateTestCase = async (formData: any, steps: any[], id: number) => {
+    const stepsToUpdate = steps.map((step, index) => ({
+      action: step.action,
+      expected: step.expected,
+      order: index,
+    }));
+
+    const { error } = await supabase.rpc("update_test_case", {
+      p_id: id,
+      p_name: formData.name,
+      p_description: formData.description,
+      p_module_id: formData.module_id,
+      p_steps: stepsToUpdate,
+    });
+
+    if (error) {
+      return console.error(error);
+    } else {
+      onCancelEdit();
+    }
+  };
+
+  return {
+    submitProject,
+    updateProject,
+    submitModules,
+    updateModule,
+    submitTestCases,
+    updateTestCase,
+  };
 }

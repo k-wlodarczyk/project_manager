@@ -7,18 +7,36 @@ import { useFetchItems } from "../../hooks/useFetchItems";
 import TestCaseItem from "../TestCaseItem/TestCaseItem";
 import styles from "./TestCasesSection.module.css";
 
+const MODAL_CONFIG = {
+  view: {
+    title: "View test case",
+    subtitle: "",
+  },
+  create: {
+    title: "New test case",
+    subtitle: "Add test case",
+  },
+  edit: {
+    title: "Edit test case",
+    subtitle: "",
+  },
+};
+
 export default function TestCaseSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
     number | undefined
   >(undefined);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { projectId, moduleId } = useParams();
 
   const { data: testCases, refresh } = useFetchItems("test_cases", "view");
   const { data: modules } = useFetchItems("modules", "view");
 
-  const modalMode = selectedTestCaseId ? "view" : "create";
+  const modalMode = isEditing ? "edit" : selectedTestCaseId ? "view" : "create";
+
+  const { title, subtitle } = MODAL_CONFIG[modalMode];
 
   function showViewTestCaseModal(id: number) {
     setSelectedTestCaseId(id);
@@ -32,6 +50,7 @@ export default function TestCaseSection() {
   function handleCloseModal() {
     setIsModalOpen(false);
     setSelectedTestCaseId(undefined);
+    setIsEditing(false);
   }
 
   const testCaseFields = [
@@ -73,10 +92,12 @@ export default function TestCaseSection() {
       {isModalOpen && (
         <Modal
           type="testCases"
-          title="New test case"
-          subtitle="Add test case"
+          title={title}
+          subtitle={subtitle}
           onCancel={handleCloseModal}
           onSuccess={refresh}
+          onEdit={() => setIsEditing(true)}
+          onCancelEdit={() => setIsEditing(false)}
           fields={testCaseFields}
           objectId={selectedTestCaseId}
           viewMode={modalMode}

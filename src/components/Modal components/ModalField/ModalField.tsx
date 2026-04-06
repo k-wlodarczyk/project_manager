@@ -18,7 +18,6 @@ export default function ModalField({
   value,
   disabled,
   onChange,
-  defaultValue,
   options,
 }: ModalFieldProps) {
   const isSelect = type === "select" && !disabled;

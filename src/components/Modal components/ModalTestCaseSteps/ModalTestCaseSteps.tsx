@@ -11,18 +11,19 @@ interface ModalTestCaseStepsProps {
   testCaseSteps: TestCaseStep[];
   handleNewTestCaseStep: () => void;
   handleUpdateTestCaseSteps: (id: number, field: string, value: string) => void;
+  disabled: boolean;
 }
 
 export default function ModalTestCaseSteps({
   testCaseSteps,
   handleNewTestCaseStep,
   handleUpdateTestCaseSteps,
+  disabled,
 }: ModalTestCaseStepsProps) {
   const [addTestCaseMode, setAddTestCaseMode] = useState(false);
 
   return (
-    <>
-      <button onClick={() => setAddTestCaseMode(true)}>Add steps</button>
+    <div className={styles.testCaseStepsSection}>
       <div className={styles.testCasesHeader}>
         <div>No.</div>
         <div>Actions</div>
@@ -31,41 +32,47 @@ export default function ModalTestCaseSteps({
 
       {testCaseSteps.map((step, index) => (
         <div key={step.id} className={styles.rowWrapper}>
-          <div className={styles.testCaseStepsSection}>
+          <div className={styles.testCaseStepsItem}>
             <div className={styles.dragHandle}>:::</div>
             <div className={styles.stepNumber}>{index + 1}</div>
 
             <div className={styles.textareaWithLabel}>
               <textarea
-                placeholder="Action"
+                placeholder={disabled ? "" : "Action"}
                 value={step.action}
+                disabled={disabled}
                 onChange={(e) =>
                   handleUpdateTestCaseSteps(step.id, "action", e.target.value)
                 }
+                spellCheck="false"
               />
             </div>
 
             <div className={styles.textareaWithLabel}>
               <textarea
-                placeholder="Expected result"
+                placeholder={disabled ? "" : "Expected result"}
                 value={step.expected}
+                disabled={disabled}
                 onChange={(e) =>
                   handleUpdateTestCaseSteps(step.id, "expected", e.target.value)
                 }
+                spellCheck="false"
               />
             </div>
           </div>
-          <button
-            type="button"
-            className={styles.insertButton}
-            onClick={handleNewTestCaseStep}
-          >
-            <span>+</span>
-          </button>
+          {!disabled && (
+            <button
+              type="button"
+              className={styles.insertButton}
+              onClick={handleNewTestCaseStep}
+            >
+              <span>+</span>
+            </button>
+          )}
         </div>
       ))}
 
-      <button onClick={handleNewTestCaseStep}>+</button>
-    </>
+      {!disabled && <button onClick={handleNewTestCaseStep}>+</button>}
+    </div>
   );
 }

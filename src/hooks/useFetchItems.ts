@@ -11,7 +11,7 @@ const SELECT_FIELDS = {
 
 export function useFetchItems(
   type: "projects" | "modules" | "test_cases" | "test_case_steps",
-  viewMode?: "create" | "view",
+  viewMode?: "create" | "view" | "edit",
   objectId?: number,
 ) {
   const { projectId, moduleId } = useParams();
