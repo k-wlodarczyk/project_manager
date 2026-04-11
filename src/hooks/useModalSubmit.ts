@@ -97,7 +97,7 @@ export function useModalSubmit({
       order: index,
     }));
 
-    const { error } = await supabase.rpc("update_test_case", {
+    const { data, error } = await supabase.rpc("update_test_case", {
       p_id: id,
       p_name: formData.name,
       p_description: formData.description,
@@ -108,6 +108,7 @@ export function useModalSubmit({
     if (error) {
       return console.error(error);
     } else {
+      onSuccess(data);
       onCancelEdit();
     }
   };

@@ -54,5 +54,13 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
     return data || [];
   }, []);
 
-  return { testCaseSteps, newStep, updateSteps, fetchSteps };
+  function deleteStep(id: number) {
+    setTestCaseSteps((prevSteps) => {
+      const filteredSteps = prevSteps.filter((step) => step.id !== id);
+
+      return filteredSteps;
+    });
+  }
+
+  return { testCaseSteps, newStep, updateSteps, fetchSteps, deleteStep };
 }

@@ -18,7 +18,19 @@ textarea {
   font-size: 1.6rem;
   font-weight: 600;
   display: grid;
-  grid-template-columns: 5fr 45fr 45fr 5fr;
+  grid-template-columns: 3fr 5fr 42fr 42fr 5fr;
+  gap: 12px;
+  padding: 15px;
+}
+
+.testCaseStepsItemView,
+.testCaseStepsHeaderView {
+  grid-template-columns: 3fr 42fr 42fr;
+}
+
+.testCaseStepsItemEdit,
+.testCaseStepsHeaderEdit {
+  grid-template-columns: 3fr 5fr 42fr 42fr 5fr;
 }
 
 .textareaWithLabel {
@@ -34,11 +46,10 @@ textarea {
 
 .testCaseStepsItem {
   display: grid;
-  grid-template-columns: 30px 40px 1fr 1fr;
-  gap: 12px;
+
   align-items: start;
   background: white;
-  padding: 15px;
+
   border: 1px solid #e0e0e0;
   border-radius: 8px;
 }

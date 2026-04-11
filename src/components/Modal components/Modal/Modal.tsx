@@ -59,7 +59,7 @@ export default function Modal({
     objectId,
   );
 
-  const { testCaseSteps, newStep, updateSteps } =
+  const { testCaseSteps, newStep, updateSteps, deleteStep } =
     useTestCaseSteps(fetchedSteps);
   const {
     submitProject,
@@ -163,6 +163,7 @@ export default function Modal({
               testCaseSteps={testCaseSteps}
               handleNewTestCaseStep={newStep}
               handleUpdateTestCaseSteps={updateSteps}
+              handleDeleteTestCaseStep={deleteStep}
               disabled={shouldDisableFields}
             />
           )}
