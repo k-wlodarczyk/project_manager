@@ -62,6 +62,8 @@ export function useModalSubmit({
           description: formData.description,
           project_id: projectId,
           module_id: formData.module_id,
+          status: formData.status,
+          execution: formData.execution,
         },
       ])
       .select()
@@ -97,11 +99,13 @@ export function useModalSubmit({
       order: index,
     }));
 
-    const { data, error } = await supabase.rpc("update_test_case", {
+    const { data, error } = await supabase.rpc("update_test_case_old", {
       p_id: id,
       p_name: formData.name,
       p_description: formData.description,
       p_module_id: formData.module_id,
+      p_status: formData.status,
+      p_execution: formData.execution,
       p_steps: stepsToUpdate,
     });
 

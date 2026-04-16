@@ -1,7 +1,80 @@
+.list {
+  /* margin-top: 1.6rem; */
+  display: flex;
+  flex-direction: column;
+  /* gap: 1.2rem; */
+  font-size: 1.4rem;
+}
+
+.listHeader {
+  border-bottom: 1px solid #e6e6e6;
+  /* font-size: 1.6rem; */
+  font-weight: 600;
+  background-color: #fbfbfb;
+}
+
+.listHeader label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.listHeader,
+.listItem {
+  display: grid;
+  grid-template-columns: 1fr 27fr 7fr 7fr 7fr;
+  gap: 1.2rem;
+  padding: 1.2rem 0.6rem;
+  border-bottom: 1px solid #eee;
+}
+
+.moduleHeader {
+  display: grid;
+  grid-template-columns: 1fr 48fr;
+  padding: 1.2rem 0.6rem;
+  background-color: #eee;
+}
+
+.listItem {
+  transition: 0.4s ease all;
+}
+.listItem:hover {
+  background-color: #e6e6e6;
+  cursor: pointer;
+}
+
 ul {
+  list-style: none;
   max-height: 100vh;
   margin-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.todo {
+  background-color: rgb(216, 150, 103);
+}
+
+.passed {
+  background-color: greenyellow;
+}
+
+.failed {
+  background-color: rgb(204, 65, 65);
+  color: #fff;
+}
+
+.skipped {
+  background-color: rgb(255, 175, 36);
+}
+
+.manual {
+  background-color: purple;
+  color: #fff;
+}
+
+.automated {
+  background-color: green;
+  color: #fff;
 }

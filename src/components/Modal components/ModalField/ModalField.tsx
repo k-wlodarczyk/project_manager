@@ -1,5 +1,6 @@
 import styles from "./ModalField.module.css";
 import type { FieldConfig, Option } from "../../../types/modal";
+import clsx from "clsx";
 
 interface ModalFieldProps extends FieldConfig {
   value?: string;
@@ -8,6 +9,7 @@ interface ModalFieldProps extends FieldConfig {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   options?: Option[];
+  wholeLine?: boolean;
 }
 
 export default function ModalField({
@@ -17,13 +19,19 @@ export default function ModalField({
   placeholder,
   value,
   disabled,
-  onChange,
   options,
+  onChange,
+  wholeLine,
 }: ModalFieldProps) {
   const isSelect = type === "select" && !disabled;
 
   return (
-    <div className={styles.modalField}>
+    <div
+      className={clsx(
+        styles.modalField,
+        wholeLine && styles.modalFieldWholeLine,
+      )}
+    >
       <label htmlFor="">{label}</label>
 
       {isSelect ? (

@@ -35,7 +35,7 @@ export default function ModalActionBtns({
       {viewMode === "view" && (
         <>
           <ModalBtn type="secondary" onClick={onCancel}>
-            Cancel
+            Close
           </ModalBtn>
           <ModalBtn type="cta" onClick={onEdit}>
             Edit

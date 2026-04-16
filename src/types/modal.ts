@@ -11,4 +11,5 @@ export interface FieldConfig {
   options?: Option[];
   disabled?: boolean;
   defaultValue?: any;
+  hideInFormRows?: boolean;
 }

@@ -1,7 +1,12 @@
 .modalField {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.4rem;
+}
+
+.modalFieldWholeLine {
+  align-items: stretch;
+  flex-direction: column;
 }
 
 label {
@@ -10,9 +15,14 @@ label {
   font-family: system-ui, sans-serif;
 }
 
-input {
+input,
+select {
   background-color: #f3f3f3;
   border: none;
   padding: 1.2rem;
   border-radius: 0.6rem;
+}
+
+select:hover {
+  cursor: pointer;
 }

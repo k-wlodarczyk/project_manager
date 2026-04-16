@@ -142,6 +142,7 @@ export default function Modal({
         <p className={styles.subtitle}>{subtitle}</p>
         <div className={styles.modalFields}>
           {fields.map((field) => {
+            if (field.hideInFormRows) return;
             return (
               <ModalField
                 key={field.name}
@@ -154,6 +155,7 @@ export default function Modal({
                 defaultValue={field.defaultValue || ""}
                 options={field.options}
                 onChange={(e: any) => handleChange(field.name, e.target.value)}
+                wholeLine={true}
               />
             );
           })}
@@ -168,16 +170,48 @@ export default function Modal({
             />
           )}
         </div>
-        <div className={styles.modalBtns}>
-          <ModalActionBtns
-            viewMode={viewMode}
-            disabled={shouldDisableFields}
-            onCancel={onCancel}
-            onSubmitNew={handleSubmit}
-            onEdit={onEdit}
-            onCancelEdit={onCancelEdit}
-            onSubmitEdit={handleSubmit}
-          />
+        <div className={styles.modalFooter}>
+          {type === "testCases" && (
+            <div className={styles.modalFooterExecution}>
+              <ModalField
+                name="name"
+                type="select"
+                label="Execution"
+                value={formData.execution}
+                disabled={shouldDisableFields}
+                options={[
+                  { label: "Manual", value: "Manual" },
+                  { label: "Automated", value: "Automated" },
+                ]}
+                onChange={(e: any) => handleChange("execution", e.target.value)}
+              />
+              <ModalField
+                name="name"
+                type="select"
+                label="Status"
+                value={formData.status}
+                disabled={shouldDisableFields}
+                options={[
+                  { label: "To Do", value: "To Do" },
+                  { label: "Passed", value: "Passed" },
+                  { label: "Failed", value: "Failed" },
+                  { label: "Skipped", value: "Skipped" },
+                ]}
+                onChange={(e: any) => handleChange("status", e.target.value)}
+              />
+            </div>
+          )}
+          <div className={styles.modalBtns}>
+            <ModalActionBtns
+              viewMode={viewMode}
+              disabled={shouldDisableFields}
+              onCancel={onCancel}
+              onSubmitNew={handleSubmit}
+              onEdit={onEdit}
+              onCancelEdit={onCancelEdit}
+              onSubmitEdit={handleSubmit}
+            />
+          </div>
         </div>
       </div>
     </div>,
