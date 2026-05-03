@@ -17,9 +17,15 @@ export function useFetchItems(
   const { projectId, moduleId } = useParams();
 
   const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const fetchData = useCallback(async () => {
-    if (viewMode !== "view") return;
+    if (viewMode !== "view") {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
 
     const fields = SELECT_FIELDS[type];
     let query: any = supabase.from(type).select(fields);
@@ -51,11 +57,13 @@ export function useFetchItems(
     } else {
       setData(data || []);
     }
+
+    setIsLoading(false);
   }, [type, projectId, moduleId, objectId, viewMode]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  return { data, refresh: fetchData };
+  return { data, isLoading, refresh: fetchData };
 }
