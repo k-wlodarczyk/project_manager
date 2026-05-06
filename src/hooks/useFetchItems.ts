@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 const SELECT_FIELDS = {
   projects: "id, name",
   modules: "id, name",
-  test_cases: "id, name, module_id, description, status, execution",
+  test_cases: "id, name, module_id, project_id, description, status, execution",
   test_case_steps: "id, action, expected_result",
 };
 
@@ -13,6 +13,7 @@ export function useFetchItems(
   type: "projects" | "modules" | "test_cases" | "test_case_steps",
   viewMode?: "create" | "view" | "edit",
   objectId?: number,
+  range?: "all",
 ) {
   const { projectId, moduleId } = useParams();
 
@@ -38,10 +39,12 @@ export function useFetchItems(
       }
 
       if (type === "test_cases") {
-        if (moduleId) {
-          query = query.eq("module_id", moduleId);
-        } else {
-          query = query.eq("project_id", projectId);
+        if (range !== "all") {
+          if (moduleId) {
+            query = query.eq("module_id", moduleId);
+          } else if (projectId) {
+            query = query.eq("project_id", projectId);
+          }
         }
       }
 

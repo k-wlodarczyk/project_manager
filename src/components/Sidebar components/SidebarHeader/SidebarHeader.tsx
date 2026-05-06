@@ -1,12 +1,12 @@
-import { useState, useRef } from "react";
 import SidebarButtonAdd from "../SidebarButtonAdd/SidebarButtonAdd";
 import styles from "./SidebarHeader.module.css";
-
-import { useOnClickOutside } from "usehooks-ts";
 
 interface SidebarHeaderProps {
   title: string;
   onClick: () => void;
+  ref?: any;
+  onToggleDropdown?: () => void;
+  isActiveDropdown?: boolean;
   checkedElements?: any[];
   dropdownOptions?: any[];
 }
@@ -14,24 +14,12 @@ interface SidebarHeaderProps {
 export default function SidebarHeader({
   title,
   onClick,
+  ref,
+  onToggleDropdown,
+  isActiveDropdown,
   checkedElements,
   dropdownOptions,
 }: SidebarHeaderProps) {
-  const [isActiveDropdown, setIsActiveDropdown] = useState<boolean>(false);
-
-  const ref = useRef<any>(null);
-
-  function handleToggleDropdown() {
-    setIsActiveDropdown((prev) => !prev);
-  }
-
-  function handleClickOutside() {
-    setIsActiveDropdown(false);
-    console.log("i am here");
-  }
-
-  useOnClickOutside(ref, handleClickOutside);
-
   return (
     <div>
       <div className={styles.sidebarHeaderSection}>
@@ -41,10 +29,7 @@ export default function SidebarHeader({
         </div>
         {checkedElements && checkedElements.length > 0 && (
           <div ref={ref}>
-            <button
-              className={styles.btnDropdown}
-              onClick={handleToggleDropdown}
-            >
+            <button className={styles.btnDropdown} onClick={onToggleDropdown}>
               Selected elements: {checkedElements.length}{" "}
               <span>
                 <ion-icon name="chevron-down-outline"></ion-icon>

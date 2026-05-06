@@ -9,6 +9,7 @@ interface SidebarItemProps {
   description?: string;
   projectUrl?: string;
   isSelected: boolean;
+  counter: number;
   children: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ export default function SidebarItem({
   moduleId,
   children,
   isSelected,
+  counter,
 }: SidebarItemProps) {
   const config = {
     projects: {
@@ -44,7 +46,7 @@ export default function SidebarItem({
         <ion-icon name={currentConfig.icon}></ion-icon>
         <div>
           <p className={styles.projectName}>{children}</p>
-          <p className={styles.projectDetails}>2 tests</p>
+          <p className={styles.projectDetails}>{counter} tests</p>
         </div>
       </div>
     </Link>

@@ -4,7 +4,7 @@ import Modal from "../../Modal components/Modal/Modal";
 import SidebarItem from "../SidebarItem/SidebarItem";
 import { useParams } from "react-router-dom";
 import { useFetchItems } from "../../../hooks/useFetchItems";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface SidebarProps {
   type: "projects" | "modules";
@@ -18,7 +18,17 @@ export default function Sidebar({ type }: SidebarProps) {
     "view",
   );
 
+  const { data: fetchedTestCases, refresh: refreshTestCaseCounter } =
+    useFetchItems("test_cases", "view", undefined, "all");
+
+  const [testCases, setTestCases] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    setTestCases(fetchedTestCases);
+  }, [fetchedTestCases]);
+
+  console.log(fetchedTestCases);
 
   const projectFields = [
     { name: "name", label: "Project Name", placeholder: "Enter project name" },
@@ -39,13 +49,36 @@ export default function Sidebar({ type }: SidebarProps) {
     { name: "description", label: "Description", placeholder: "Enter desc" },
   ];
 
+  // function countTestCases(id: number, isProject: boolean) {
+  //   if (isProject) {
+  //     return testCases?.filter((tc: any) => tc.project_id === id).length;
+  //   } else {
+  //     return testCases?.filter((tc: any) => tc.module_id === id).length;
+  //   }
+  // }
+
+  const countTestCases = useMemo(() => {
+    return (id: number, isProject: boolean) => {
+      if (!testCases) return 0;
+
+      if (isProject) {
+        return testCases.filter((tc: any) => tc.project_id === id).length;
+      } else {
+        return testCases.filter((tc: any) => tc.module_id === id).length;
+      }
+    };
+  }, [testCases]);
+
   return (
     <aside className={styles.sidebar}>
       {isModalOpen && (
         <Modal
           type={type}
           title={type === "projects" ? "New project" : "New module"}
-          onSuccess={refresh}
+          onSuccess={() => {
+            refresh();
+            refreshTestCaseCounter();
+          }}
           subtitle={
             type === "projects"
               ? "Create a new project to organize your test cases."
@@ -64,6 +97,8 @@ export default function Sidebar({ type }: SidebarProps) {
         {data?.map((item: any) => {
           const isProjectType = type === "projects";
 
+          const testCaseCounter = countTestCases(item.id, isProjectType);
+
           return (
             <li key={item.id}>
               <SidebarItem
@@ -73,6 +108,7 @@ export default function Sidebar({ type }: SidebarProps) {
                 isSelected={
                   item.id.toString() === (isProjectType ? projectId : moduleId)
                 }
+                counter={testCaseCounter}
               >
                 {item.name}
               </SidebarItem>

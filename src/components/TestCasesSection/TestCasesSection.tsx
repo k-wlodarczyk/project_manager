@@ -1,4 +1,10 @@
-import { useEffect, useState, type ChangeEvent, type MouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type MouseEvent,
+} from "react";
 import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 import Modal from "../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
@@ -6,6 +12,8 @@ import { supabase } from "../../supabaseClient";
 import { useFetchItems } from "../../hooks/useFetchItems";
 import TestCaseItem from "../TestCaseItem/TestCaseItem";
 import styles from "./TestCasesSection.module.css";
+import { useTestCases } from "../../hooks/useTestCases";
+import { useOnClickOutside } from "usehooks-ts";
 
 const MODAL_CONFIG = {
   view: {
@@ -35,7 +43,8 @@ const testCaseExecutionCss = {
 };
 
 export default function TestCaseSection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
     number | undefined
   >(undefined);
@@ -43,6 +52,8 @@ export default function TestCaseSection() {
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
   const { projectId, moduleId } = useParams();
+
+  const ref = useRef<any>(null);
 
   useEffect(() => {
     setCheckedTestCases([]);
@@ -54,6 +65,8 @@ export default function TestCaseSection() {
     refresh,
   } = useFetchItems("test_cases", "view");
   const { data: modules } = useFetchItems("modules", "view");
+
+  const { deleteTestCases } = useTestCases(checkedTestCases);
 
   const modalMode = isEditing ? "edit" : selectedTestCaseId ? "view" : "create";
 
@@ -112,8 +125,6 @@ export default function TestCaseSection() {
   }
 
   function handleGlobalChecked() {
-    console.log("do sth");
-
     const testCaseIds = testCases.map((tc: any) => tc.id);
 
     const areAllTestCasesChecked = testCaseIds.every((tcId: number) =>
@@ -166,16 +177,39 @@ export default function TestCaseSection() {
     },
   ];
 
-  console.log(testCases);
+  function handleToggleDropdown() {
+    setIsDropdownOpen((prev) => !prev);
+  }
+
+  function handleClickOutside() {
+    setIsDropdownOpen(false);
+  }
+
+  useOnClickOutside(ref, handleClickOutside);
 
   return (
     <div>
       <SidebarHeader
         title="Test cases"
         onClick={showCreateTestCaseModal}
+        ref={ref}
+        onToggleDropdown={handleToggleDropdown}
+        isActiveDropdown={isDropdownOpen}
         checkedElements={checkedTestCases}
         dropdownOptions={[
-          { label: "Delete", onClick: () => console.log("delete") },
+          {
+            label: "Delete",
+            onClick: async () => {
+              try {
+                await deleteTestCases();
+                refresh();
+                setCheckedTestCases([]);
+                setIsDropdownOpen(false);
+              } catch (error) {
+                console.error(error);
+              }
+            },
+          },
           {
             label: "Change module",
             onClick: () => console.log("change module"),
@@ -206,78 +240,92 @@ export default function TestCaseSection() {
       <div className={styles.list}>
         {!moduleId &&
           !isLoading &&
-          modules?.map((module: any) => (
-            <div key={module.id}>
-              <div className={styles.moduleHeader}>
-                <label htmlFor={`check-${module.id}`}>
-                  <input
-                    type="checkbox"
-                    name=""
-                    id={`check-${module.id}`}
-                    checked={
-                      isLoading
-                        ? false
-                        : testCases && testCases.length > 0
-                          ? testCases
-                              .filter((tc: any) => tc.module_id === module.id)
-                              .every((tc: any) =>
-                                checkedTestCases.includes(tc.id),
-                              )
-                          : false
-                    }
-                    onChange={() => handleModuleChecked(module.id)}
-                  />
-                </label>
-                <div>MODULE: {module.name}</div>
-              </div>
-              {testCases
-                ?.filter((testCase: any) => testCase.module_id === module.id)
-                .map((filtered: any) => (
-                  <div
-                    className={styles.listItem}
-                    onClick={() => showViewTestCaseModal(filtered.id)}
-                  >
-                    <label
-                      htmlFor="testCaseCheck"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+          modules?.map((module: any) => {
+            const hasModuleTestCases = testCases.some(
+              (tc: any) => tc.module_id === module.id,
+            );
+
+            return (
+              hasModuleTestCases && (
+                <div key={module.id}>
+                  <div className={styles.moduleHeader}>
+                    <label htmlFor={`check-${module.id}`}>
                       <input
                         type="checkbox"
-                        name="testCaseCheck"
-                        id={`check-${filtered.id}`}
-                        checked={checkedTestCases.includes(filtered.id)}
-                        onChange={(e) => handleCheckboxClick(e, filtered.id)}
+                        name=""
+                        id={`check-${module.id}`}
+                        checked={
+                          isLoading
+                            ? false
+                            : testCases && testCases.length > 0
+                              ? testCases
+                                  .filter(
+                                    (tc: any) => tc.module_id === module.id,
+                                  )
+                                  .every((tc: any) =>
+                                    checkedTestCases.includes(tc.id),
+                                  )
+                              : false
+                        }
+                        onChange={() => handleModuleChecked(module.id)}
                       />
                     </label>
-
-                    <div>{filtered.name}</div>
-                    <div
-                      className={
-                        styles[
-                          testCaseStatusCss[
-                            filtered.status as keyof typeof testCaseStatusCss
-                          ] as any
-                        ]
-                      }
-                    >
-                      {filtered.status}
-                    </div>
-                    <div
-                      className={
-                        styles[
-                          testCaseExecutionCss[
-                            filtered.execution as keyof typeof testCaseExecutionCss
-                          ] as any
-                        ]
-                      }
-                    >
-                      {filtered.execution}
-                    </div>
-                    <div>2026-04-12</div>
+                    <div>MODULE: {module.name}</div>
                   </div>
-                ))}
-            </div>
-          ))}
+                  {testCases
+                    ?.filter(
+                      (testCase: any) => testCase.module_id === module.id,
+                    )
+                    .map((filtered: any) => (
+                      <div
+                        className={styles.listItem}
+                        onClick={() => showViewTestCaseModal(filtered.id)}
+                      >
+                        <label
+                          htmlFor="testCaseCheck"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            name="testCaseCheck"
+                            id={`check-${filtered.id}`}
+                            checked={checkedTestCases.includes(filtered.id)}
+                            onChange={(e) =>
+                              handleCheckboxClick(e, filtered.id)
+                            }
+                          />
+                        </label>
+
+                        <div>{filtered.name}</div>
+                        <div
+                          className={
+                            styles[
+                              testCaseStatusCss[
+                                filtered.status as keyof typeof testCaseStatusCss
+                              ] as any
+                            ]
+                          }
+                        >
+                          {filtered.status}
+                        </div>
+                        <div
+                          className={
+                            styles[
+                              testCaseExecutionCss[
+                                filtered.execution as keyof typeof testCaseExecutionCss
+                              ] as any
+                            ]
+                          }
+                        >
+                          {filtered.execution}
+                        </div>
+                        <div>2026-04-12</div>
+                      </div>
+                    ))}
+                </div>
+              )
+            );
+          })}
 
         {moduleId && (
           <div className={styles.list}>
