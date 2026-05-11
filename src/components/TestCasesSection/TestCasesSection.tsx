@@ -14,6 +14,7 @@ import TestCaseItem from "../TestCaseItem/TestCaseItem";
 import styles from "./TestCasesSection.module.css";
 import { useTestCases } from "../../hooks/useTestCases";
 import { useOnClickOutside } from "usehooks-ts";
+import { Link, useNavigate } from "react-router-dom";
 
 const MODAL_CONFIG = {
   view: {
@@ -51,13 +52,21 @@ export default function TestCaseSection() {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
-  const { projectId, moduleId } = useParams();
+  const navigate = useNavigate();
+  const { projectId, moduleId, testcaseId } = useParams();
 
   const ref = useRef<any>(null);
 
   useEffect(() => {
     setCheckedTestCases([]);
   }, [projectId]);
+
+  useEffect(() => {
+    if (testcaseId) {
+      setSelectedTestCaseId(+testcaseId);
+      setIsModalOpen(true);
+    }
+  }, [testcaseId]);
 
   const {
     data: testCases,
@@ -85,6 +94,11 @@ export default function TestCaseSection() {
     setIsModalOpen(false);
     setSelectedTestCaseId(undefined);
     setIsEditing(false);
+    if (moduleId) {
+      navigate(`/project/${projectId}/module/${moduleId}`);
+    } else {
+      navigate(`/project/${projectId}`);
+    }
   }
 
   function handleCheckboxClick(e: ChangeEvent, id: number) {
@@ -276,50 +290,55 @@ export default function TestCaseSection() {
                       (testCase: any) => testCase.module_id === module.id,
                     )
                     .map((filtered: any) => (
-                      <div
-                        className={styles.listItem}
-                        onClick={() => showViewTestCaseModal(filtered.id)}
+                      <Link
+                        to={`/project/${projectId}/testCase/${filtered.id}`}
+                        className={styles.testCaseLink}
                       >
-                        <label
-                          htmlFor="testCaseCheck"
-                          onClick={(e) => e.stopPropagation()}
+                        <div
+                          className={styles.listItem}
+                          onClick={() => showViewTestCaseModal(filtered.id)}
                         >
-                          <input
-                            type="checkbox"
-                            name="testCaseCheck"
-                            id={`check-${filtered.id}`}
-                            checked={checkedTestCases.includes(filtered.id)}
-                            onChange={(e) =>
-                              handleCheckboxClick(e, filtered.id)
-                            }
-                          />
-                        </label>
+                          <label
+                            htmlFor="testCaseCheck"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              name="testCaseCheck"
+                              id={`check-${filtered.id}`}
+                              checked={checkedTestCases.includes(filtered.id)}
+                              onChange={(e) =>
+                                handleCheckboxClick(e, filtered.id)
+                              }
+                            />
+                          </label>
 
-                        <div>{filtered.name}</div>
-                        <div
-                          className={
-                            styles[
-                              testCaseStatusCss[
-                                filtered.status as keyof typeof testCaseStatusCss
-                              ] as any
-                            ]
-                          }
-                        >
-                          {filtered.status}
+                          <div>{filtered.name}</div>
+                          <div
+                            className={
+                              styles[
+                                testCaseStatusCss[
+                                  filtered.status as keyof typeof testCaseStatusCss
+                                ] as any
+                              ]
+                            }
+                          >
+                            {filtered.status}
+                          </div>
+                          <div
+                            className={
+                              styles[
+                                testCaseExecutionCss[
+                                  filtered.execution as keyof typeof testCaseExecutionCss
+                                ] as any
+                              ]
+                            }
+                          >
+                            {filtered.execution}
+                          </div>
+                          <div>2026-04-12</div>
                         </div>
-                        <div
-                          className={
-                            styles[
-                              testCaseExecutionCss[
-                                filtered.execution as keyof typeof testCaseExecutionCss
-                              ] as any
-                            ]
-                          }
-                        >
-                          {filtered.execution}
-                        </div>
-                        <div>2026-04-12</div>
-                      </div>
+                      </Link>
                     ))}
                 </div>
               )
@@ -329,50 +348,55 @@ export default function TestCaseSection() {
         {moduleId && (
           <div className={styles.list}>
             {testCases?.map((testCase: any) => (
-              <div
-                key={testCase.id}
-                className={styles.listItem}
-                onClick={() => showViewTestCaseModal(testCase.id)}
+              <Link
+                to={`/project/${projectId}/module/${moduleId}/testCase/${testCase.id}`}
+                className={styles.testCaseLink}
               >
-                <label
-                  htmlFor={`check-${testCase.id}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <input
-                    type="checkbox"
-                    name="testCaseCheck"
-                    checked={checkedTestCases.includes(testCase.id)}
-                    id={`check-${testCase.id}`}
-                    onChange={(e) => handleCheckboxClick(e, testCase.id)}
-                  />
-                </label>
-
-                <div>{testCase.name}</div>
-
                 <div
-                  className={
-                    styles[
-                      testCaseStatusCss[
-                        testCase.status as keyof typeof testCaseStatusCss
-                      ] as any
-                    ]
-                  }
+                  key={testCase.id}
+                  className={styles.listItem}
+                  onClick={() => showViewTestCaseModal(testCase.id)}
                 >
-                  {testCase.status}
+                  <label
+                    htmlFor={`check-${testCase.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      name="testCaseCheck"
+                      checked={checkedTestCases.includes(testCase.id)}
+                      id={`check-${testCase.id}`}
+                      onChange={(e) => handleCheckboxClick(e, testCase.id)}
+                    />
+                  </label>
+
+                  <div>{testCase.name}</div>
+
+                  <div
+                    className={
+                      styles[
+                        testCaseStatusCss[
+                          testCase.status as keyof typeof testCaseStatusCss
+                        ] as any
+                      ]
+                    }
+                  >
+                    {testCase.status}
+                  </div>
+                  <div
+                    className={
+                      styles[
+                        testCaseExecutionCss[
+                          testCase.execution as keyof typeof testCaseExecutionCss
+                        ] as any
+                      ]
+                    }
+                  >
+                    {testCase.execution}
+                  </div>
+                  <div>2026-04-10</div>
                 </div>
-                <div
-                  className={
-                    styles[
-                      testCaseExecutionCss[
-                        testCase.execution as keyof typeof testCaseExecutionCss
-                      ] as any
-                    ]
-                  }
-                >
-                  {testCase.execution}
-                </div>
-                <div>2026-04-10</div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -15,6 +15,14 @@ export default function App() {
           path="/project/:projectId/module/:moduleId"
           element={<Dashboard />}
         />
+        <Route
+          path="/project/:projectId/testcase/:testcaseId"
+          element={<Dashboard />}
+        />
+        <Route
+          path="/project/:projectId/module/:moduleId/testcase/:testcaseId"
+          element={<Dashboard />}
+        />
       </Routes>
     </>
   );
