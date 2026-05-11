@@ -23,7 +23,7 @@ export default function ModalField({
   onChange,
   wholeLine,
 }: ModalFieldProps) {
-  const isSelect = type === "select" && !disabled;
+  const isSelect = type === "select";
 
   return (
     <div
@@ -40,6 +40,7 @@ export default function ModalField({
           onChange={onChange}
           disabled={disabled}
           value={value}
+          className={disabled ? styles.disabledSelect : ""}
         >
           <option value="" disabled>
             Select an option
