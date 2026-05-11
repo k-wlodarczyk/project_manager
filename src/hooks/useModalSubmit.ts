@@ -76,7 +76,7 @@ export function useModalSubmit({
     const stepsToInsert = steps.map((step: any, index: number) => ({
       test_case_id: testCase.id,
       action: step.action,
-      input_data: step.input_data,
+      input_data: step.input,
       expected_result: step.expected,
       order: index,
     }));

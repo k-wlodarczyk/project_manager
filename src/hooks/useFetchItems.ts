@@ -53,6 +53,8 @@ export function useFetchItems(
       }
     }
 
+    query = query.order("id");
+
     const { data, error } = await query;
 
     if (error) {
