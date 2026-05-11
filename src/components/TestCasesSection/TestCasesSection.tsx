@@ -1,16 +1,8 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type MouseEvent,
-} from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 import Modal from "../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
-import { supabase } from "../../supabaseClient";
 import { useFetchItems } from "../../hooks/useFetchItems";
-import TestCaseItem from "../TestCaseItem/TestCaseItem";
 import styles from "./TestCasesSection.module.css";
 import { useTestCases } from "../../hooks/useTestCases";
 import { useOnClickOutside } from "usehooks-ts";

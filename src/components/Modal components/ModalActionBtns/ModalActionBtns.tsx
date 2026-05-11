@@ -1,5 +1,4 @@
 import ModalBtn from "../ModalBtn/ModalBtn";
-import styles from "./ModalActionBtns.module.css";
 
 interface ModalActionBtnsProps {
   viewMode: "view" | "create" | "edit";
@@ -13,7 +12,6 @@ interface ModalActionBtnsProps {
 
 export default function ModalActionBtns({
   viewMode,
-  disabled,
   onCancel,
   onSubmitNew,
   onEdit,

@@ -1,10 +1,10 @@
-import { useState } from "react";
 import styles from "./ModalTestCaseSteps.module.css";
 import clsx from "clsx";
 
 interface TestCaseStep {
   id: number;
   action: string;
+  input: string;
   expected: string;
 }
 
@@ -23,8 +23,6 @@ export default function ModalTestCaseSteps({
   handleDeleteTestCaseStep,
   disabled,
 }: ModalTestCaseStepsProps) {
-  const [addTestCaseMode, setAddTestCaseMode] = useState(false);
-
   return (
     <div className={styles.testCaseStepsSection}>
       <div

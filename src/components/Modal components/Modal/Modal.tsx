@@ -2,7 +2,6 @@ import { createPortal } from "react-dom";
 import styles from "./Modal.module.css";
 import { useHotkeys } from "react-hotkeys-hook";
 import ModalField from "../ModalField/ModalField";
-import ModalBtn from "../ModalBtn/ModalBtn";
 import { useEffect, useState } from "react";
 import type { FieldConfig } from "../../../types/modal";
 import ModalTestCaseSteps from "../ModalTestCaseSteps/ModalTestCaseSteps";

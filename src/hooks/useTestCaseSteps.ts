@@ -49,7 +49,7 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
   }
 
   const fetchSteps = useCallback(async (testCaseId: number) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("test_case_steps")
       .select("id, action, input_data, expected_result")
       .eq("test_case_id", testCaseId);

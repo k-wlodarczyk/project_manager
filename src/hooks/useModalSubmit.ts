@@ -12,7 +12,7 @@ export function useModalSubmit({
   onCancel,
   onCancelEdit,
 }: useModalSubmitProps) {
-  const { projectId, moduleId } = useParams();
+  const { projectId } = useParams();
 
   const submitProject = async (formData: any) => {
     if (!formData.name) return alert("Project name is required");
@@ -31,7 +31,7 @@ export function useModalSubmit({
     }
   };
 
-  const updateProject = async (formData: any) => {};
+  const updateProject = async (_formData: any) => {};
 
   const submitModules = async (formData: any) => {
     const { data, error } = await supabase
@@ -51,7 +51,7 @@ export function useModalSubmit({
     }
   };
 
-  const updateModule = async (formData: any, id: number) => {};
+  const updateModule = async (_formData: any, _id: number) => {};
 
   const submitTestCases = async (formData: any, steps: any[]) => {
     const { data: testCase, error } = await supabase

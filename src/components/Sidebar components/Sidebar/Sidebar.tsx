@@ -87,6 +87,8 @@ export default function Sidebar({ type }: SidebarProps) {
           onCancel={() => setIsModalOpen(false)}
           fields={type === "projects" ? projectFields : moduleFields}
           viewMode="create"
+          onEdit={() => {}}
+          onCancelEdit={() => {}}
         />
       )}
       <SidebarHeader
