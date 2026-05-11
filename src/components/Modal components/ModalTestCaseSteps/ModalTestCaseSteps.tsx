@@ -37,6 +37,7 @@ export default function ModalTestCaseSteps({
         {!disabled && <div></div>}
         <div>No.</div>
         <div>Actions</div>
+        <div>Input data</div>
         <div>Expected results</div>
       </div>
 
@@ -60,6 +61,18 @@ export default function ModalTestCaseSteps({
                 disabled={disabled}
                 onChange={(e) =>
                   handleUpdateTestCaseSteps(step.id, "action", e.target.value)
+                }
+                spellCheck="false"
+              />
+            </div>
+
+            <div className={styles.textareaWithLabel}>
+              <textarea
+                placeholder={disabled ? "" : "Input data"}
+                value={step.input}
+                disabled={disabled}
+                onChange={(e) =>
+                  handleUpdateTestCaseSteps(step.id, "input", e.target.value)
                 }
                 spellCheck="false"
               />

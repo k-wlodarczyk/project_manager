@@ -76,6 +76,7 @@ export function useModalSubmit({
     const stepsToInsert = steps.map((step: any, index: number) => ({
       test_case_id: testCase.id,
       action: step.action,
+      input_data: step.input_data,
       expected_result: step.expected,
       order: index,
     }));
@@ -95,6 +96,7 @@ export function useModalSubmit({
   const updateTestCase = async (formData: any, steps: any[], id: number) => {
     const stepsToUpdate = steps.map((step, index) => ({
       action: step.action,
+      input: step.input,
       expected: step.expected,
       order: index,
     }));

@@ -6,7 +6,7 @@ const SELECT_FIELDS = {
   projects: "id, name",
   modules: "id, name",
   test_cases: "id, name, module_id, project_id, description, status, execution",
-  test_case_steps: "id, action, expected_result",
+  test_case_steps: "id, action, input_data, expected_result",
 };
 
 export function useFetchItems(

@@ -99,7 +99,6 @@ export default function TestCaseSection() {
         nextState = [...arr, id];
       }
 
-      console.log(nextState);
       return nextState;
     });
   }

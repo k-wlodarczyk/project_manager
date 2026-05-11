@@ -7,10 +7,11 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
       return fetchedSteps.map((step) => ({
         id: step.id,
         action: step.action,
+        input: step.input_data,
         expected: step.expected_result,
       }));
     } else {
-      return [{ id: 1, action: "", expected: "" }];
+      return [{ id: 1, action: "", input: "", expected: "" }];
     }
   });
 
@@ -19,11 +20,12 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
       const formattedSteps = fetchedSteps.map((step) => ({
         id: step.id,
         action: step.action,
+        input: step.input_data,
         expected: step.expected_result,
       }));
       setTestCaseSteps(formattedSteps);
     } else {
-      setTestCaseSteps([{ id: 1, action: "", expected: "" }]);
+      setTestCaseSteps([{ id: 1, action: "", input: "", expected: "" }]);
     }
   }, [fetchedSteps]);
 
@@ -31,6 +33,7 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
     const newStep = {
       id: testCaseSteps.length + 1,
       action: "",
+      input: "",
       expected: "",
     };
 
@@ -48,7 +51,7 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
   const fetchSteps = useCallback(async (testCaseId: number) => {
     const { data, error } = await supabase
       .from("test_case_steps")
-      .select("id, action, expected_result")
+      .select("id, action, input_data, expected_result")
       .eq("test_case_id", testCaseId);
 
     return data || [];

@@ -18,19 +18,19 @@ textarea {
   font-size: 1.6rem;
   font-weight: 600;
   display: grid;
-  grid-template-columns: 3fr 5fr 42fr 42fr 5fr;
+  grid-template-columns: 3fr 5fr 30fr 21fr 30fr 5fr;
   gap: 12px;
   padding: 15px;
 }
 
 .testCaseStepsItemView,
 .testCaseStepsHeaderView {
-  grid-template-columns: 3fr 42fr 42fr;
+  grid-template-columns: 3fr 30fr 21fr 30fr;
 }
 
 .testCaseStepsItemEdit,
 .testCaseStepsHeaderEdit {
-  grid-template-columns: 3fr 5fr 42fr 42fr 5fr;
+  grid-template-columns: 3fr 5fr 42fr 21fr 42fr 5fr;
 }
 
 .textareaWithLabel {
