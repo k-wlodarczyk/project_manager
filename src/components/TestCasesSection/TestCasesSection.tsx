@@ -7,6 +7,7 @@ import styles from "./TestCasesSection.module.css";
 import { useTestCases } from "../../hooks/useTestCases";
 import { useOnClickOutside } from "usehooks-ts";
 import { Link, useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
 const MODAL_CONFIG = {
   view: {
@@ -97,6 +98,7 @@ export default function TestCaseSection() {
     setIsModalOpen(false);
     setSelectedTestCaseId(undefined);
     setIsEditing(false);
+    setIsCopy(false);
     if (moduleId) {
       navigate(`/project/${projectId}/module/${moduleId}`);
     } else {
@@ -212,6 +214,7 @@ export default function TestCaseSection() {
     <div>
       <SidebarHeader
         title="Test cases"
+        type="testCases"
         onClick={showCreateTestCaseModal}
         ref={ref}
         onToggleDropdown={handleToggleDropdown}
@@ -323,24 +326,26 @@ export default function TestCaseSection() {
 
                           <div>{filtered.name}</div>
                           <div
-                            className={
+                            className={clsx(
+                              styles.status,
                               styles[
                                 testCaseStatusCss[
                                   filtered.status as keyof typeof testCaseStatusCss
                                 ] as any
-                              ]
-                            }
+                              ],
+                            )}
                           >
                             {filtered.status}
                           </div>
                           <div
-                            className={
+                            className={clsx(
+                              styles.execution,
                               styles[
                                 testCaseExecutionCss[
                                   filtered.execution as keyof typeof testCaseExecutionCss
                                 ] as any
-                              ]
-                            }
+                              ],
+                            )}
                           >
                             {filtered.execution}
                           </div>
@@ -381,24 +386,26 @@ export default function TestCaseSection() {
                   <div>{testCase.name}</div>
 
                   <div
-                    className={
+                    className={clsx(
+                      styles.status,
                       styles[
                         testCaseStatusCss[
                           testCase.status as keyof typeof testCaseStatusCss
                         ] as any
-                      ]
-                    }
+                      ],
+                    )}
                   >
                     {testCase.status}
                   </div>
                   <div
-                    className={
+                    className={clsx(
+                      styles.execution,
                       styles[
                         testCaseExecutionCss[
                           testCase.execution as keyof typeof testCaseExecutionCss
                         ] as any
-                      ]
-                    }
+                      ],
+                    )}
                   >
                     {testCase.execution}
                   </div>

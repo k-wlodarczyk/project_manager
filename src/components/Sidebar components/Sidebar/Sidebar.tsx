@@ -87,10 +87,12 @@ export default function Sidebar({ type }: SidebarProps) {
           viewMode="create"
           onEdit={() => {}}
           onCancelEdit={() => {}}
+          onCopy={() => {}}
         />
       )}
       <SidebarHeader
         title={type === "projects" ? "Projects" : "Modules"}
+        type={type}
         onClick={() => setIsModalOpen(true)}
       />
       <ul className={styles.elements}>

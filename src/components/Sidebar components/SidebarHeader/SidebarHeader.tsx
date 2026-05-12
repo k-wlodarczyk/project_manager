@@ -3,6 +3,7 @@ import styles from "./SidebarHeader.module.css";
 
 interface SidebarHeaderProps {
   title: string;
+  type: "projects" | "modules" | "testCases";
   onClick: () => void;
   ref?: any;
   onToggleDropdown?: () => void;
@@ -13,6 +14,7 @@ interface SidebarHeaderProps {
 
 export default function SidebarHeader({
   title,
+  type,
   onClick,
   ref,
   onToggleDropdown,
@@ -25,7 +27,7 @@ export default function SidebarHeader({
       <div className={styles.sidebarHeaderSection}>
         <div className={styles.sidebarTitle}>
           <h2>{title}</h2>
-          <SidebarButtonAdd onClick={onClick} />
+          <SidebarButtonAdd onClick={onClick} type={type} />
         </div>
         {checkedElements && checkedElements.length > 0 && (
           <div ref={ref}>

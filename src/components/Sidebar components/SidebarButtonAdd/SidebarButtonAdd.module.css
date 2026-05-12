@@ -10,6 +10,19 @@
   /* height: 100%; */
 }
 
+.btnAddTestCase {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 1.6rem;
+  padding: 0.8rem 1.6rem;
+  background-color: #5f1e9c;
+  color: #fff;
+}
+
 .btnAdd:hover {
   background-color: #e6e6e6;
+}
+
+.btnAddTestCase:hover {
+  background-color: rgb(58, 18, 95);
 }
