@@ -21,6 +21,10 @@ const MODAL_CONFIG = {
     title: "Edit test case",
     subtitle: "",
   },
+  copy: {
+    title: "Copy test case",
+    subtitle: "",
+  },
 };
 
 const testCaseStatusCss = {
@@ -42,6 +46,7 @@ export default function TestCaseSection() {
     number | undefined
   >(undefined);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isCopy, setIsCopy] = useState<boolean>(false);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
   const navigate = useNavigate();
@@ -69,7 +74,13 @@ export default function TestCaseSection() {
 
   const { deleteTestCases } = useTestCases(checkedTestCases);
 
-  const modalMode = isEditing ? "edit" : selectedTestCaseId ? "view" : "create";
+  const modalMode = isEditing
+    ? isCopy
+      ? "copy"
+      : "edit"
+    : selectedTestCaseId
+      ? "view"
+      : "create";
 
   const { title, subtitle } = MODAL_CONFIG[modalMode];
 
@@ -181,6 +192,11 @@ export default function TestCaseSection() {
       hideInFormRows: true,
     },
   ];
+
+  function handleCopy() {
+    setIsCopy(true);
+    setIsEditing(true);
+  }
 
   function handleToggleDropdown() {
     setIsDropdownOpen((prev) => !prev);
@@ -406,6 +422,7 @@ export default function TestCaseSection() {
           fields={testCaseFields}
           objectId={selectedTestCaseId}
           viewMode={modalMode}
+          onCopy={handleCopy}
         />
       )}
     </div>

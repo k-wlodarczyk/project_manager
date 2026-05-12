@@ -28,8 +28,6 @@ export default function Sidebar({ type }: SidebarProps) {
     setTestCases(fetchedTestCases);
   }, [fetchedTestCases]);
 
-  console.log(fetchedTestCases);
-
   const projectFields = [
     { name: "name", label: "Project Name", placeholder: "Enter project name" },
     {

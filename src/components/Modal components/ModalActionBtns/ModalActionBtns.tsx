@@ -1,13 +1,15 @@
 import ModalBtn from "../ModalBtn/ModalBtn";
 
 interface ModalActionBtnsProps {
-  viewMode: "view" | "create" | "edit";
+  viewMode: "view" | "create" | "edit" | "copy";
   disabled: boolean;
   onCancel: () => void;
   onSubmitNew: () => void;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSubmitEdit: () => void;
+  onCopy: () => void;
+  onSubmitCopy: () => void;
 }
 
 export default function ModalActionBtns({
@@ -17,6 +19,8 @@ export default function ModalActionBtns({
   onEdit,
   onCancelEdit,
   onSubmitEdit,
+  onCopy,
+  onSubmitCopy,
 }: ModalActionBtnsProps) {
   return (
     <>
@@ -32,6 +36,7 @@ export default function ModalActionBtns({
       )}
       {viewMode === "view" && (
         <>
+          <button onClick={onCopy}>Copy</button>
           <ModalBtn type="secondary" onClick={onCancel}>
             Close
           </ModalBtn>
@@ -46,6 +51,16 @@ export default function ModalActionBtns({
             Discard changes
           </ModalBtn>
           <ModalBtn type="cta" onClick={onSubmitEdit}>
+            Save
+          </ModalBtn>
+        </>
+      )}
+      {viewMode === "copy" && (
+        <>
+          <ModalBtn type="secondary" onClick={onCancelEdit}>
+            Discard changes
+          </ModalBtn>
+          <ModalBtn type="cta" onClick={onSubmitCopy}>
             Save
           </ModalBtn>
         </>

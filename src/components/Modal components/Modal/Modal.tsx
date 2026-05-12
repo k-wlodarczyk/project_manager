@@ -12,7 +12,7 @@ import ModalActionBtns from "../ModalActionBtns/ModalActionBtns";
 
 interface ModalProps {
   type: "projects" | "modules" | "testCases";
-  viewMode: "view" | "create" | "edit";
+  viewMode: "view" | "create" | "edit" | "copy";
   onCancel: () => void;
   onEdit: () => void;
   onCancelEdit: () => void;
@@ -21,6 +21,7 @@ interface ModalProps {
   title: string;
   subtitle?: string;
   objectId?: number;
+  onCopy: () => void;
 }
 
 const DB_TYPE = {
@@ -40,6 +41,7 @@ export default function Modal({
   title,
   subtitle,
   objectId,
+  onCopy,
 }: ModalProps) {
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
@@ -108,7 +110,7 @@ export default function Modal({
   };
 
   function handleSubmit() {
-    const isNewRecord = viewMode === "create";
+    const isNewRecord = viewMode === "create" || viewMode === "copy";
 
     if (type === "projects") {
       return isNewRecord ? submitProject(formData) : updateProject(formData);
@@ -209,6 +211,8 @@ export default function Modal({
               onEdit={onEdit}
               onCancelEdit={onCancelEdit}
               onSubmitEdit={handleSubmit}
+              onCopy={onCopy}
+              onSubmitCopy={handleSubmit}
             />
           </div>
         </div>
