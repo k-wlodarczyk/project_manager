@@ -4,7 +4,7 @@
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
-  #[[redirects]]
+  [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
