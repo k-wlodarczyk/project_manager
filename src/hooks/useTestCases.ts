@@ -13,5 +13,19 @@ export function useTestCases(checkedTestCases: number[]) {
     return data;
   }, [checkedTestCases]);
 
-  return { deleteTestCases };
+  const updateTestCasesStatus = useCallback(
+    async (newStatus: "To Do" | "Passed" | "Failed" | "Skipped") => {
+      const { data, error } = await supabase
+        .from("test_cases")
+        .update({ status: newStatus })
+        .in("id", checkedTestCases)
+        .select();
+
+      if (error) console.error(error);
+      return data;
+    },
+    [checkedTestCases],
+  );
+
+  return { deleteTestCases, updateTestCasesStatus };
 }

@@ -8,6 +8,7 @@ import { useTestCases } from "../../hooks/useTestCases";
 import { useOnClickOutside } from "usehooks-ts";
 import { Link, useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import Popup from "../Popup/Popup";
 
 const MODAL_CONFIG = {
   view: {
@@ -25,6 +26,27 @@ const MODAL_CONFIG = {
   copy: {
     title: "Copy test case",
     subtitle: "",
+  },
+};
+
+type PopupAction = "changeStatus" | "changeModule" | "delete";
+
+interface PopupSetting {
+  type: "option" | "confirmation";
+  options?: string[];
+}
+
+const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
+  changeStatus: {
+    type: "option",
+    options: ["To Do", "Passed", "Failed", "Skipped"],
+  },
+  changeModule: {
+    type: "option",
+    options: ["c", "d"],
+  },
+  delete: {
+    type: "confirmation",
   },
 };
 
@@ -48,6 +70,10 @@ export default function TestCaseSection() {
   >(undefined);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isCopy, setIsCopy] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [selectedDropdownOption, setSelectedDropdownOption] = useState<
+    undefined | "changeStatus" | "changeModule" | "delete"
+  >(undefined);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
   const navigate = useNavigate();
@@ -73,7 +99,8 @@ export default function TestCaseSection() {
   } = useFetchItems("test_cases", "view");
   const { data: modules } = useFetchItems("modules", "view");
 
-  const { deleteTestCases } = useTestCases(checkedTestCases);
+  const { deleteTestCases, updateTestCasesStatus } =
+    useTestCases(checkedTestCases);
 
   const modalMode = isEditing
     ? isCopy
@@ -82,6 +109,15 @@ export default function TestCaseSection() {
     : selectedTestCaseId
       ? "view"
       : "create";
+
+  const popupType = selectedDropdownOption
+    ? POPUP_CONFIG[selectedDropdownOption as keyof typeof POPUP_CONFIG].type
+    : undefined;
+  const popupOptions =
+    popupType === "option"
+      ? POPUP_CONFIG[selectedDropdownOption as keyof typeof POPUP_CONFIG]
+          .options
+      : undefined;
 
   const { title, subtitle } = MODAL_CONFIG[modalMode];
 
@@ -208,6 +244,34 @@ export default function TestCaseSection() {
     setIsDropdownOpen(false);
   }
 
+  function handleSelectDropdownOption(
+    option: "changeStatus" | "changeModule" | "delete",
+  ) {
+    // alert(option);
+    setSelectedDropdownOption(option);
+    setIsPopupOpen(true);
+  }
+
+  async function handleSubmitPopup(selectedOption?: any) {
+    if (selectedDropdownOption === "changeStatus") {
+      await updateTestCasesStatus(selectedOption);
+      refresh();
+    }
+
+    if (selectedDropdownOption === "delete") {
+      await deleteTestCases();
+      refresh();
+    }
+
+    setSelectedDropdownOption(undefined);
+    setIsPopupOpen(false);
+  }
+
+  function handleClosePopup() {
+    setSelectedDropdownOption(undefined);
+    setIsPopupOpen(false);
+  }
+
   useOnClickOutside(ref, handleClickOutside);
 
   return (
@@ -222,21 +286,16 @@ export default function TestCaseSection() {
         checkedElements={checkedTestCases}
         dropdownOptions={[
           {
+            label: "Change status",
+            onClick: () => handleSelectDropdownOption("changeStatus"),
+          },
+          {
             label: "Delete",
-            onClick: async () => {
-              try {
-                await deleteTestCases();
-                refresh();
-                setCheckedTestCases([]);
-                setIsDropdownOpen(false);
-              } catch (error) {
-                console.error(error);
-              }
-            },
+            onClick: () => handleSelectDropdownOption("delete"),
           },
           {
             label: "Change module",
-            onClick: () => console.log("change module"),
+            onClick: () => handleSelectDropdownOption("changeModule"),
           },
         ]}
       />
@@ -430,6 +489,15 @@ export default function TestCaseSection() {
           objectId={selectedTestCaseId}
           viewMode={modalMode}
           onCopy={handleCopy}
+        />
+      )}
+
+      {isPopupOpen && (
+        <Popup
+          onCancel={handleClosePopup}
+          onSubmit={handleSubmitPopup}
+          type={popupType}
+          options={popupOptions}
         />
       )}
     </div>
