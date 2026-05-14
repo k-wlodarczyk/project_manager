@@ -11,6 +11,7 @@ interface TestCaseStep {
 interface ModalTestCaseStepsProps {
   testCaseSteps: TestCaseStep[];
   handleNewTestCaseStep: () => void;
+  handleNewTestCaseStepAfterIndex: (id: number) => void;
   handleUpdateTestCaseSteps: (id: number, field: string, value: string) => void;
   handleDeleteTestCaseStep: (id: number) => void;
   disabled: boolean;
@@ -19,6 +20,7 @@ interface ModalTestCaseStepsProps {
 export default function ModalTestCaseSteps({
   testCaseSteps,
   handleNewTestCaseStep,
+  handleNewTestCaseStepAfterIndex,
   handleUpdateTestCaseSteps,
   handleDeleteTestCaseStep,
   disabled,
@@ -97,7 +99,7 @@ export default function ModalTestCaseSteps({
             <button
               type="button"
               className={styles.insertButton}
-              onClick={handleNewTestCaseStep}
+              onClick={() => handleNewTestCaseStepAfterIndex(index)}
             >
               <span>+</span>
             </button>

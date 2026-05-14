@@ -29,15 +29,34 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
     }
   }, [fetchedSteps]);
 
+  function getTempId() {
+    return -(Date.now() + Math.floor(Math.random() * 1000));
+  }
+
   function newStep() {
     const newStep = {
-      id: testCaseSteps.length + 1,
+      id: getTempId(),
       action: "",
       input: "",
       expected: "",
     };
 
-    setTestCaseSteps([...testCaseSteps, newStep]);
+    setTestCaseSteps((prevSteps) => [...prevSteps, newStep]);
+  }
+
+  function newStepAfterIndex(index: number) {
+    const newStep = {
+      id: getTempId(),
+      action: "",
+      input: "",
+      expected: "",
+    };
+
+    setTestCaseSteps((prevSteps) => {
+      const arr = [...prevSteps];
+      arr.splice(index + 1, 0, newStep);
+      return arr;
+    });
   }
 
   function updateSteps(id: number, field: string, value: string) {
@@ -65,5 +84,12 @@ export function useTestCaseSteps(fetchedSteps?: any[]) {
     });
   }
 
-  return { testCaseSteps, newStep, updateSteps, fetchSteps, deleteStep };
+  return {
+    testCaseSteps,
+    newStep,
+    newStepAfterIndex,
+    updateSteps,
+    fetchSteps,
+    deleteStep,
+  };
 }
