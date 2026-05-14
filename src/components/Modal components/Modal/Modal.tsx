@@ -9,6 +9,7 @@ import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import { useTestCaseSteps } from "../../../hooks/useTestCaseSteps";
 import { useFetchItems } from "../../../hooks/useFetchItems";
 import ModalActionBtns from "../ModalActionBtns/ModalActionBtns";
+import { useTestCases } from "../../../hooks/useTestCases";
 
 interface ModalProps {
   type: "projects" | "modules" | "testCases";
@@ -60,6 +61,8 @@ export default function Modal({
     objectId,
   );
 
+  const { updateTestCasesStatus } = useTestCases(objectId);
+
   const { testCaseSteps, newStep, newStepAfterIndex, updateSteps, deleteStep } =
     useTestCaseSteps(fetchedSteps);
   const {
@@ -105,8 +108,20 @@ export default function Modal({
     }
   }, [fetchedItem, viewMode, fields, objectId]);
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = async (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (
+      name === "status" &&
+      viewMode === "view" &&
+      objectId &&
+      ["To Do", "Passed", "Failed", "Skipped"].includes(value)
+    ) {
+      await updateTestCasesStatus(
+        value as "Passed" | "Failed" | "To Do" | "Skipped",
+      );
+      onSuccess(null);
+    }
   };
 
   function handleSubmit() {
@@ -192,7 +207,7 @@ export default function Modal({
                 type="select"
                 label="Status"
                 value={formData.status}
-                disabled={shouldDisableFields}
+                disabled={false}
                 options={[
                   { label: "To Do", value: "To Do" },
                   { label: "Passed", value: "Passed" },

@@ -34,9 +34,16 @@ textarea {
 }
 
 .textareaWithLabel {
+  color: #111;
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: #fff;
+}
+
+.textareaWithLabel textarea:disabled {
+  color: #111;
+  background-color: #fff;
 }
 
 .rowWrapper {

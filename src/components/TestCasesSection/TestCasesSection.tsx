@@ -247,7 +247,6 @@ export default function TestCaseSection() {
   function handleSelectDropdownOption(
     option: "changeStatus" | "changeModule" | "delete",
   ) {
-    // alert(option);
     setSelectedDropdownOption(option);
     setIsPopupOpen(true);
   }

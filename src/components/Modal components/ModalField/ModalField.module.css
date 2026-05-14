@@ -24,6 +24,13 @@ select {
   border-radius: 0.6rem;
 }
 
+input:disabled,
+select:disabled {
+  background-color: #f3f3f3;
+  opacity: 1;
+  color: #777;
+}
+
 .disabledSelect {
   appearance: none;
 }
