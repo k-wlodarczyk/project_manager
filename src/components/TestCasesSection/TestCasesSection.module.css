@@ -99,3 +99,7 @@ ul {
   background-color: green;
   color: #fff;
 }
+
+.selectedItem {
+  background-color: #aaa;
+}

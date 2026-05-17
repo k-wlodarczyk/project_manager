@@ -23,6 +23,9 @@ interface ModalProps {
   subtitle?: string;
   objectId?: number;
   onCopy: () => void;
+  navigationEnabled?: { previousEnabled: boolean; nextEnabled: boolean };
+  onNextTestCase?: () => void;
+  onPreviousTestCase?: () => void;
 }
 
 const DB_TYPE = {
@@ -43,6 +46,9 @@ export default function Modal({
   subtitle,
   objectId,
   onCopy,
+  navigationEnabled,
+  onNextTestCase,
+  onPreviousTestCase,
 }: ModalProps) {
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
@@ -216,6 +222,22 @@ export default function Modal({
                 ]}
                 onChange={(e: any) => handleChange("status", e.target.value)}
               />
+            </div>
+          )}
+          {type === "testCases" && viewMode === "view" && (
+            <div className={styles.nextPreviousSection}>
+              <button
+                disabled={!navigationEnabled?.previousEnabled}
+                onClick={onPreviousTestCase}
+              >
+                &larr; Previous
+              </button>
+              <button
+                disabled={!navigationEnabled?.nextEnabled}
+                onClick={onNextTestCase}
+              >
+                Next &rarr;
+              </button>
             </div>
           )}
           <div className={styles.modalBtns}>

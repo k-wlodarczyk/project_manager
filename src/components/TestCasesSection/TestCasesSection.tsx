@@ -271,6 +271,82 @@ export default function TestCaseSection() {
     setIsPopupOpen(false);
   }
 
+  const orderedTestCases: any[] = [];
+
+  const shouldRenderList = !moduleId && !isLoading && modules && testCases;
+
+  if (moduleId && testCases) {
+    const moduleTestCases = testCases.filter(
+      (tc: any) => +tc.module_id === +moduleId,
+    );
+    orderedTestCases.push(...moduleTestCases);
+  }
+
+  if (shouldRenderList) {
+    modules.forEach((module: any) => {
+      const moduleTestCases = testCases.filter(
+        (tc: any) => tc.module_id === module.id,
+      );
+
+      if (moduleTestCases.length > 0) {
+        orderedTestCases.push(...moduleTestCases);
+      }
+    });
+  }
+
+  function showNextPreviousTestCase() {
+    const getIndexOfArray = orderedTestCases?.findIndex(
+      (tc: any) => tc.id == selectedTestCaseId,
+    );
+
+    const previousEnabled = getIndexOfArray > 0;
+    const nextEnabled = getIndexOfArray < orderedTestCases?.length - 1;
+
+    return { previousEnabled, nextEnabled };
+  }
+
+  function handleNextTestCase() {
+    const getIndexOfArray = orderedTestCases?.findIndex(
+      (tc: any) => tc.id == selectedTestCaseId,
+    );
+
+    if (
+      getIndexOfArray === -1 ||
+      getIndexOfArray >= orderedTestCases.length - 1
+    ) {
+      return;
+    }
+
+    const nextTestCaseIndex = getIndexOfArray + 1;
+    const testCaseId = orderedTestCases[nextTestCaseIndex].id;
+    setSelectedTestCaseId(testCaseId);
+    if (moduleId) {
+      navigate(
+        `/project/${projectId}/module/${moduleId}/testCase/${testCaseId}`,
+      );
+    } else {
+      navigate(`/project/${projectId}/testCase/${testCaseId}`);
+    }
+  }
+
+  function handlePreviousTestCase() {
+    const getIndexOfArray = orderedTestCases?.findIndex(
+      (tc: any) => tc.id == selectedTestCaseId,
+    );
+    if (getIndexOfArray <= 0) return;
+
+    const previousTestCaseIndex = getIndexOfArray - 1;
+    const testCaseId = orderedTestCases[previousTestCaseIndex].id;
+    setSelectedTestCaseId(testCaseId);
+    if (moduleId) {
+      navigate(
+        `/project/${projectId}/module/${moduleId}/testCase/${testCaseId}`,
+      );
+    } else {
+      navigate(`/project/${projectId}/testCase/${testCaseId}`);
+    }
+  }
+
   useOnClickOutside(ref, handleClickOutside);
 
   return (
@@ -361,7 +437,12 @@ export default function TestCaseSection() {
                     .map((filtered: any) => (
                       <Link
                         to={`/project/${projectId}/testCase/${filtered.id}`}
-                        className={styles.testCaseLink}
+                        className={clsx(
+                          styles.testCaseLink,
+                          isModalOpen &&
+                            selectedTestCaseId === filtered.id &&
+                            styles.selectedItem,
+                        )}
                       >
                         <div
                           className={styles.listItem}
@@ -421,7 +502,12 @@ export default function TestCaseSection() {
             {testCases?.map((testCase: any) => (
               <Link
                 to={`/project/${projectId}/module/${moduleId}/testCase/${testCase.id}`}
-                className={styles.testCaseLink}
+                className={clsx(
+                  styles.testCaseLink,
+                  isModalOpen &&
+                    selectedTestCaseId === testCase.id &&
+                    styles.selectedItem,
+                )}
               >
                 <div
                   key={testCase.id}
@@ -488,6 +574,9 @@ export default function TestCaseSection() {
           objectId={selectedTestCaseId}
           viewMode={modalMode}
           onCopy={handleCopy}
+          navigationEnabled={showNextPreviousTestCase()}
+          onNextTestCase={handleNextTestCase}
+          onPreviousTestCase={handlePreviousTestCase}
         />
       )}
 
