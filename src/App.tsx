@@ -5,8 +5,6 @@ import Header from "./components/Header/Header";
 export default function App() {
   return (
     <>
-      <Header>Project Manager</Header>
-
       <Routes>
         <Route path="/" element={<Dashboard />} />
 
