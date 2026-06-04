@@ -51,7 +51,32 @@ export function useModalSubmit({
     }
   };
 
-  const updateModule = async (_formData: any, _id: number) => {};
+  const updateModule = async (formData: any, moduleId: number) => {
+    const { data, error } = await supabase
+      .from("modules")
+      .update({ name: formData.moduleName })
+      .eq("id", moduleId)
+      .select();
+
+    if (!error) {
+      onSuccess(data);
+      onCancel();
+    }
+  };
+
+  const deleteModule = async (moduleId: number) => {
+    const { data, error } = await supabase
+      .from("modules")
+      .delete()
+      .eq("id", moduleId)
+      .select();
+
+    if (!error) {
+      console.log("success");
+      onSuccess(data);
+      onCancel();
+    }
+  };
 
   const submitTestCases = async (formData: any, steps: any[]) => {
     const { data: testCase, error } = await supabase
@@ -124,6 +149,7 @@ export function useModalSubmit({
     updateProject,
     submitModules,
     updateModule,
+    deleteModule,
     submitTestCases,
     updateTestCase,
   };

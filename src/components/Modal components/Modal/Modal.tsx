@@ -75,7 +75,6 @@ export default function Modal({
     submitProject,
     updateProject,
     submitModules,
-    updateModule,
     submitTestCases,
     updateTestCase,
   } = useModalSubmit({
@@ -134,12 +133,11 @@ export default function Modal({
     const isNewRecord = viewMode === "create" || viewMode === "copy";
 
     if (type === "projects") {
-      return isNewRecord ? submitProject(formData) : updateProject(formData);
+      return isNewRecord ? submitProject(formData) : alert("ERROR");
     }
     if (type === "modules") {
-      return isNewRecord
-        ? submitModules(formData)
-        : updateModule(formData, objectId!);
+      return isNewRecord ? submitModules(formData) : alert("ERROR");
+      // : updateModule(formData, objectId!);
     }
     if (type === "testCases") {
       return isNewRecord

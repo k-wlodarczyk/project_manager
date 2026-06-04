@@ -1,0 +1,8 @@
+.moduleContainers {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 2rem;
+  padding: 1.4rem;
+  max-width: 98dvw;
+  overflow-x: auto;
+}

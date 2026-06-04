@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
 import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 import Modal from "../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
@@ -9,6 +15,75 @@ import { useOnClickOutside } from "usehooks-ts";
 import { Link, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import Popup from "../Popup/Popup";
+import TestCasesModulesSection from "../TestCasesModulesSection/TestCasesModulesSection";
+import { useModalSubmit } from "../../hooks/useModalSubmit";
+
+type PopupAction = "editModule" | "deleteModule" | "changeTestCaseStatus";
+
+type PopupField = {
+  name: string;
+  label: string;
+  id?: string;
+  type: "input" | "select";
+  placeholder?: string;
+  options?: any[];
+};
+
+interface PopupSetting {
+  title: string;
+  subtitle: string | ((param: string) => ReactNode);
+  confirmLabel: string;
+  cancelLabel: string;
+  type: "edit" | "confirmDelete";
+  fields?: PopupField[];
+}
+
+const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
+  editModule: {
+    title: "Edit Module",
+    subtitle: "",
+    confirmLabel: "Save",
+    cancelLabel: "Cancel",
+    type: "edit",
+    fields: [
+      {
+        label: "Module Name",
+        type: "input",
+        name: "moduleName",
+        id: "moduleName",
+        placeholder: "Insert new module name...",
+      },
+    ],
+  },
+  deleteModule: {
+    title: "Delete module",
+    subtitle: (moduleName: string) => (
+      <>
+        Are you sure you want to delete module <strong>{moduleName}</strong>?
+        This action cannot be undone.
+      </>
+    ),
+    confirmLabel: "Yes, delete",
+    cancelLabel: "Cancel",
+    type: "confirmDelete",
+  },
+  changeTestCaseStatus: {
+    title: "Edit Test cases status",
+    subtitle: "",
+    confirmLabel: "Save",
+    cancelLabel: "Cancel",
+    type: "edit",
+    fields: [
+      {
+        label: "Status",
+        type: "select",
+        name: "status",
+        id: "status",
+        options: ["To Do", "Passed", "Failed", "Skipped"],
+      },
+    ],
+  },
+};
 
 const MODAL_CONFIG = {
   view: {
@@ -29,26 +104,10 @@ const MODAL_CONFIG = {
   },
 };
 
-type PopupAction = "changeStatus" | "changeModule" | "delete";
-
-interface PopupSetting {
-  type: "option" | "confirmation";
-  options?: string[];
-}
-
-const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
-  changeStatus: {
-    type: "option",
-    options: ["To Do", "Passed", "Failed", "Skipped"],
-  },
-  changeModule: {
-    type: "option",
-    options: ["c", "d"],
-  },
-  delete: {
-    type: "confirmation",
-  },
-};
+const moduleFields = [
+  { name: "name", label: "Module Name", placeholder: "Enter name" },
+  { name: "description", label: "Description", placeholder: "Enter desc" },
+];
 
 const testCaseStatusCss = {
   "To Do": "todo",
@@ -68,8 +127,21 @@ export default function TestCaseSection() {
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
     number | undefined
   >(undefined);
+  const [selectedModuleId, setSelectedModuleId] = useState<number | undefined>(
+    undefined,
+  );
+  const [popupModuleName, setPopupModuleName] = useState<string>(
+    "undefined module name",
+  );
+  const [popupModuleId, setPopupModuleId] = useState<number>(-1);
+  const [popupAction, setPopupAction] = useState<
+    "deleteModule" | "editModule" | "changeTestCaseStatus"
+  >("deleteModule");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isCopy, setIsCopy] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<"testCases" | "modules">(
+    "testCases",
+  );
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [selectedDropdownOption, setSelectedDropdownOption] = useState<
     undefined | "changeStatus" | "changeModule" | "delete"
@@ -92,15 +164,32 @@ export default function TestCaseSection() {
     }
   }, [testcaseId]);
 
+  useEffect(() => {
+    if (moduleId) {
+      setSelectedModuleId(+moduleId);
+    } else {
+      setSelectedModuleId(undefined);
+    }
+  }, [moduleId, projectId]);
+
   const {
     data: testCases,
     isLoading,
     refresh,
-  } = useFetchItems("test_cases", "view");
-  const { data: modules } = useFetchItems("modules", "view");
+  } = useFetchItems("test_cases", "view", undefined, "all");
+  const { data: modules, refresh: refreshModules } = useFetchItems(
+    "modules",
+    "view",
+  );
 
   const { deleteTestCases, updateTestCasesStatus } =
     useTestCases(checkedTestCases);
+
+  const { updateModule, deleteModule } = useModalSubmit({
+    onSuccess: refreshModules,
+    onCancel: handleClosePopup,
+    onCancelEdit: handleClosePopup,
+  });
 
   const modalMode = isEditing
     ? isCopy
@@ -110,23 +199,24 @@ export default function TestCaseSection() {
       ? "view"
       : "create";
 
-  const popupType = selectedDropdownOption
-    ? POPUP_CONFIG[selectedDropdownOption as keyof typeof POPUP_CONFIG].type
-    : undefined;
-  const popupOptions =
-    popupType === "option"
-      ? POPUP_CONFIG[selectedDropdownOption as keyof typeof POPUP_CONFIG]
-          .options
-      : undefined;
-
   const { title, subtitle } = MODAL_CONFIG[modalMode];
+
+  useEffect(() => {
+    refresh();
+  }, [moduleId, refresh]);
 
   function showViewTestCaseModal(id: number) {
     setSelectedTestCaseId(id);
     setIsModalOpen(true);
   }
 
-  function showCreateTestCaseModal() {
+  function showCreateTestCaseModal(type: "testCases" | "modules") {
+    setModalType(type);
+    setIsModalOpen(true);
+  }
+
+  function showCreateModuleModal() {
+    setModalType("modules");
     setIsModalOpen(true);
   }
 
@@ -135,6 +225,7 @@ export default function TestCaseSection() {
     setSelectedTestCaseId(undefined);
     setIsEditing(false);
     setIsCopy(false);
+    setModalType("testCases");
     if (moduleId) {
       navigate(`/project/${projectId}/module/${moduleId}`);
     } else {
@@ -156,6 +247,16 @@ export default function TestCaseSection() {
 
       return nextState;
     });
+  }
+
+  function handleSelectModule(id: number | undefined) {
+    setSelectedModuleId(id);
+
+    if (id !== undefined) {
+      navigate(`/project/${projectId}/module/${id}`);
+    } else {
+      navigate(`/project/${projectId}`);
+    }
   }
 
   function handleModuleChecked(moduleId: number) {
@@ -240,26 +341,40 @@ export default function TestCaseSection() {
     setIsDropdownOpen((prev) => !prev);
   }
 
+  function handleModuleAction(
+    moduleName?: string,
+    moduleId?: number,
+    popupAction?: "editModule" | "deleteModule",
+  ) {
+    setIsPopupOpen(true);
+    setPopupModuleName(moduleName || "undefined module name");
+    setPopupModuleId(moduleId || -1);
+    if (popupAction) {
+      setPopupAction(popupAction);
+    }
+  }
+
   function handleClickOutside() {
     setIsDropdownOpen(false);
   }
 
-  function handleSelectDropdownOption(
-    option: "changeStatus" | "changeModule" | "delete",
-  ) {
+  function handleSelectDropdownOption(option: "changeStatus") {
     setSelectedDropdownOption(option);
+    setPopupAction("changeTestCaseStatus");
     setIsPopupOpen(true);
   }
 
-  async function handleSubmitPopup(selectedOption?: any) {
+  async function handleSubmitPopup(selectedOption?: any, formData?: any) {
     if (selectedDropdownOption === "changeStatus") {
       await updateTestCasesStatus(selectedOption);
       refresh();
-    }
-
-    if (selectedDropdownOption === "delete") {
+    } else if (selectedDropdownOption === "delete") {
       await deleteTestCases();
       refresh();
+    } else if (popupAction === "deleteModule") {
+      await deleteModule(popupModuleId);
+    } else if (popupAction === "editModule") {
+      await updateModule(formData, popupModuleId);
     }
 
     setSelectedDropdownOption(undefined);
@@ -354,7 +469,11 @@ export default function TestCaseSection() {
       <SidebarHeader
         title="Test cases"
         type="testCases"
-        onClick={showCreateTestCaseModal}
+        onClick={
+          modalType === "testCases"
+            ? showCreateTestCaseModal
+            : showCreateModuleModal
+        }
         ref={ref}
         onToggleDropdown={handleToggleDropdown}
         isActiveDropdown={isDropdownOpen}
@@ -373,6 +492,15 @@ export default function TestCaseSection() {
             onClick: () => handleSelectDropdownOption("changeModule"),
           },
         ]}
+      />
+
+      <TestCasesModulesSection
+        modules={modules}
+        testCases={testCases}
+        onClick={handleSelectModule}
+        projectId={projectId}
+        selectedModuleId={selectedModuleId}
+        onModuleActionSelect={handleModuleAction}
       />
 
       <div className={styles.listHeader}>
@@ -499,71 +627,81 @@ export default function TestCaseSection() {
 
         {moduleId && (
           <div className={styles.list}>
-            {testCases?.map((testCase: any) => (
-              <Link
-                to={`/project/${projectId}/module/${moduleId}/testCase/${testCase.id}`}
-                className={clsx(
-                  styles.testCaseLink,
-                  isModalOpen &&
-                    selectedTestCaseId === testCase.id &&
-                    styles.selectedItem,
-                )}
-              >
-                <div
+            {testCases
+              ?.filter((testCase: any) => {
+                const matchProject = projectId
+                  ? testCase.project_id === +projectId
+                  : true;
+
+                const matchModule = testCase.module_id === +moduleId;
+
+                return matchProject && matchModule;
+              })
+              .map((testCase: any) => (
+                <Link
                   key={testCase.id}
-                  className={styles.listItem}
-                  onClick={() => showViewTestCaseModal(testCase.id)}
+                  to={`/project/${projectId}/module/${moduleId}/testCase/${testCase.id}`}
+                  className={clsx(
+                    styles.testCaseLink,
+                    isModalOpen &&
+                      selectedTestCaseId === testCase.id &&
+                      styles.selectedItem,
+                  )}
                 >
-                  <label
-                    htmlFor={`check-${testCase.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      name="testCaseCheck"
-                      checked={checkedTestCases.includes(testCase.id)}
-                      id={`check-${testCase.id}`}
-                      onChange={(e) => handleCheckboxClick(e, testCase.id)}
-                    />
-                  </label>
-
-                  <div>{testCase.name}</div>
-
                   <div
-                    className={clsx(
-                      styles.status,
-                      styles[
-                        testCaseStatusCss[
-                          testCase.status as keyof typeof testCaseStatusCss
-                        ] as any
-                      ],
-                    )}
+                    className={styles.listItem}
+                    onClick={() => showViewTestCaseModal(testCase.id)}
                   >
-                    {testCase.status}
+                    <label
+                      htmlFor={`check-${testCase.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        name="testCaseCheck"
+                        checked={checkedTestCases.includes(testCase.id)}
+                        id={`check-${testCase.id}`}
+                        onChange={(e) => handleCheckboxClick(e, testCase.id)}
+                      />
+                    </label>
+
+                    <div>{testCase.name}</div>
+
+                    <div
+                      className={clsx(
+                        styles.status,
+                        styles[
+                          testCaseStatusCss[
+                            testCase.status as keyof typeof testCaseStatusCss
+                          ] as any
+                        ],
+                      )}
+                    >
+                      {testCase.status}
+                    </div>
+                    <div
+                      className={clsx(
+                        styles.execution,
+                        styles[
+                          testCaseExecutionCss[
+                            testCase.execution as keyof typeof testCaseExecutionCss
+                          ] as any
+                        ],
+                      )}
+                    >
+                      {testCase.execution}
+                    </div>
+                    <div>2026-04-10</div>
                   </div>
-                  <div
-                    className={clsx(
-                      styles.execution,
-                      styles[
-                        testCaseExecutionCss[
-                          testCase.execution as keyof typeof testCaseExecutionCss
-                        ] as any
-                      ],
-                    )}
-                  >
-                    {testCase.execution}
-                  </div>
-                  <div>2026-04-10</div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
           </div>
         )}
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && modalType === "testCases" && (
         <Modal
-          type="testCases"
+          type={modalType}
           title={title}
           subtitle={subtitle}
           onCancel={handleCloseModal}
@@ -580,12 +718,25 @@ export default function TestCaseSection() {
         />
       )}
 
+      {/* {isModalOpen && modalType === "modules" && (
+        // <Popup
+        //   moduleName={popupModuleName}
+        //   action={"editModule"}
+        //   config={POPUP_CONFIG2[popupAction]}
+        //   onCancel={handleClosePopup}
+        //   onSubmit={handleSubmitPopup}
+        //   type={popupType}
+        // />
+      )} */}
+
       {isPopupOpen && (
         <Popup
+          moduleName={popupModuleName}
+          action={popupAction}
+          config={POPUP_CONFIG[popupAction]}
           onCancel={handleClosePopup}
           onSubmit={handleSubmitPopup}
-          type={popupType}
-          options={popupOptions}
+          type={POPUP_CONFIG[popupAction].type}
         />
       )}
     </div>

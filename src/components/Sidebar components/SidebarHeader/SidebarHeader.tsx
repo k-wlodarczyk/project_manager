@@ -4,7 +4,7 @@ import styles from "./SidebarHeader.module.css";
 interface SidebarHeaderProps {
   title: string;
   type: "projects" | "modules" | "testCases";
-  onClick: () => void;
+  onClick: (itemType: "testCases" | "modules") => void;
   ref?: any;
   onToggleDropdown?: () => void;
   isActiveDropdown?: boolean;

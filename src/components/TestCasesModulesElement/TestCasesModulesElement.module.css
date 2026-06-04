@@ -1,27 +1,100 @@
-.btnAdd {
-  background: none;
-  border: none;
-  padding: 0 0.8rem;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  font-size: 2.5rem;
-}
-
-.btnAddTestCase {
+.moduleContainer,
+.projectContainer {
   display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
   gap: 0.6rem;
+  position: relative;
+  width: 24rem;
+  min-height: 10rem;
+  max-height: 13rem;
+  border-radius: 0.5rem;
+  box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.09);
+  transition: 0.3s ease all;
+  overflow-wrap: anywhere;
+}
+
+.moduleContainer:hover,
+.projectContainer:hover {
+  cursor: pointer;
+  transform: translateY(-3px);
+}
+
+.activeModule {
+  color: #1e0052;
+  background-color: #7c3aed66;
+}
+
+.activeModule:hover {
+  cursor: auto;
+  transform: translateY(0);
+}
+
+.mainContent {
+  padding: 0.8rem 1.2rem;
+  overflow-y: auto;
+}
+
+.moduleName {
+  font-weight: 600;
+  padding-right: 2rem;
+}
+
+.testCasesCounter {
   font-size: 1.6rem;
-  padding: 0.8rem 1.6rem;
-  background-color: rgb(124, 58, 237);
-  color: #fff;
 }
 
-.btnAdd:hover {
-  background-color: #e6e6e6;
+.statusCounter {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-around;
+  background-color: #f9fafb;
+  padding: 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
-.btnAddTestCase:hover {
-  background-color: rgb(90, 42, 173);
+.statusIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.statusElement {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.statusPassed {
+  color: #587a25;
+}
+
+.statusFailed {
+  color: #ee2020;
+}
+
+.statusSkipped {
+  color: #c46f01;
+}
+
+.statusToDo {
+  color: #555;
+}
+
+.kebabMenu {
+  display: none;
+}
+
+.moduleContainer:hover .kebabMenu {
+  display: block;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+}
+
+.kebabMenu:hover {
+  background-color: #dfdfdf;
 }
 
 .Content,
@@ -54,21 +127,35 @@
 .CheckboxItem,
 .RadioItem,
 .SubTrigger {
-  font-size: 13px;
+  font-size: 1.4rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
   line-height: 1;
-  color: #1e0052;
   font-weight: 600;
+  color: #1e0052;
   border-radius: 3px;
   display: flex;
   align-items: center;
-  height: 25px;
-  padding: 0 5px;
+  padding: 0.6rem 2.5rem;
   position: relative;
-  padding-left: 25px;
   user-select: none;
   outline: none;
   &[data-highlighted] {
     background-color: #7c3aed66;
+  }
+}
+
+.menuIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuDelete {
+  color: #f70b0b;
+  &[data-highlighted] {
+    background-color: #ee202028;
   }
 }
 
