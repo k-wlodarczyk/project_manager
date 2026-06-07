@@ -3,6 +3,8 @@
   display: flex;
   gap: 2rem;
   padding: 1.4rem;
-  max-width: 98dvw;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
 }

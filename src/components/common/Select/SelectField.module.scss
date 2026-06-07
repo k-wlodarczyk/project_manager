@@ -1,0 +1,57 @@
+.selectTrigger {
+  display: flex;
+  gap: 1.2rem;
+  border: var(--borderFormField);
+  background-color: var(--bgFormField);
+}
+
+.selectViewport {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  // gap: 0.8rem;
+  border: 1px solid rgb(158, 158, 158);
+  border-radius: 6px;
+}
+
+.selectContent {
+  min-width: var(--radix-select-trigger-width);
+  z-index: 1001;
+}
+
+.selectItem {
+  font-size: 1.4rem;
+  padding: 0.6rem;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.selectItem:hover,
+.selectItem[data-highlighted] {
+  border: none;
+  background-color: #882cdd;
+  color: #fff;
+}
+
+.statusBadge {
+  padding: 0.4rem 0.6rem;
+  display: inline-block;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.selectPassed {
+  background-color: var(--bgPassed);
+}
+
+.selectFailed {
+  background-color: var(--bgFailed);
+}
+
+.selectSkipped {
+  background-color: var(--bgSkipped);
+}
+
+.selectTodo {
+  background-color: var(--bgTodo);
+}

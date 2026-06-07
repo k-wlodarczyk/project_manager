@@ -8,6 +8,7 @@
   width: 24rem;
   min-height: 10rem;
   max-height: 13rem;
+  background-color: #fff;
   border-radius: 0.5rem;
   box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.09);
   transition: 0.3s ease all;
@@ -21,7 +22,7 @@
 }
 
 .activeModule {
-  color: #1e0052;
+  color: var(--dark-navy);
   background-color: #7c3aed66;
 }
 
@@ -58,6 +59,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 1.6rem;
 }
 
 .statusElement {

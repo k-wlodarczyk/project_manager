@@ -1,0 +1,16 @@
+%centeredFlex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin mirrorButton($color, $bg) {
+  color: $color;
+  background-color: $bg;
+  transition: 0.4s ease all;
+
+  &:hover {
+    color: $bg;
+    background-color: $color;
+  }
+}

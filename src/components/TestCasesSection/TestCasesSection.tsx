@@ -5,7 +5,6 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import SidebarHeader from "../Sidebar components/SidebarHeader/SidebarHeader";
 import Modal from "../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
 import { useFetchItems } from "../../hooks/useFetchItems";
@@ -17,8 +16,14 @@ import clsx from "clsx";
 import Popup from "../Popup/Popup";
 import TestCasesModulesSection from "../TestCasesModulesSection/TestCasesModulesSection";
 import { useModalSubmit } from "../../hooks/useModalSubmit";
+import Actionbar from "../Actionbar/Actionbar";
 
-type PopupAction = "editModule" | "deleteModule" | "changeTestCaseStatus";
+type PopupAction =
+  | "newModule"
+  | "editModule"
+  | "deleteModule"
+  | "deleteTestCases"
+  | "changeTestCaseStatus";
 
 type PopupField = {
   name: string;
@@ -31,7 +36,7 @@ type PopupField = {
 
 interface PopupSetting {
   title: string;
-  subtitle: string | ((param: string) => ReactNode);
+  subtitle: string | ((param: string | number) => ReactNode);
   confirmLabel: string;
   cancelLabel: string;
   type: "edit" | "confirmDelete";
@@ -39,6 +44,23 @@ interface PopupSetting {
 }
 
 const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
+  newModule: {
+    title: "New Module",
+    subtitle: "",
+    confirmLabel: "Create",
+    cancelLabel: "Cancel",
+    type: "edit",
+    fields: [
+      {
+        label: "Module Name",
+        type: "input",
+        name: "moduleName",
+        id: "moduleName",
+        placeholder: "Insert new module name...",
+      },
+    ],
+  },
+
   editModule: {
     title: "Edit Module",
     subtitle: "",
@@ -57,10 +79,23 @@ const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
   },
   deleteModule: {
     title: "Delete module",
-    subtitle: (moduleName: string) => (
+    subtitle: (moduleName: string | number) => (
       <>
         Are you sure you want to delete module <strong>{moduleName}</strong>?
         This action cannot be undone.
+      </>
+    ),
+    confirmLabel: "Yes, delete",
+    cancelLabel: "Cancel",
+    type: "confirmDelete",
+  },
+  deleteTestCases: {
+    title: "Delete test cases",
+    subtitle: (checkedTestCasesCounter: string | number) => (
+      <>
+        Are you sure you want to delete{" "}
+        <strong>{checkedTestCasesCounter}</strong> test cases? This action
+        cannot be undone.
       </>
     ),
     confirmLabel: "Yes, delete",
@@ -104,11 +139,6 @@ const MODAL_CONFIG = {
   },
 };
 
-const moduleFields = [
-  { name: "name", label: "Module Name", placeholder: "Enter name" },
-  { name: "description", label: "Description", placeholder: "Enter desc" },
-];
-
 const testCaseStatusCss = {
   "To Do": "todo",
   Passed: "passed",
@@ -123,19 +153,23 @@ const testCaseExecutionCss = {
 
 export default function TestCaseSection() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [_isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
     number | undefined
   >(undefined);
   const [selectedModuleId, setSelectedModuleId] = useState<number | undefined>(
     undefined,
   );
-  const [popupModuleName, setPopupModuleName] = useState<string>(
-    "undefined module name",
+  const [popupModuleName, setPopupModuleName] = useState<string | undefined>(
+    undefined,
   );
   const [popupModuleId, setPopupModuleId] = useState<number>(-1);
   const [popupAction, setPopupAction] = useState<
-    "deleteModule" | "editModule" | "changeTestCaseStatus"
+    | "newModule"
+    | "deleteModule"
+    | "deleteTestCases"
+    | "editModule"
+    | "changeTestCaseStatus"
   >("deleteModule");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isCopy, setIsCopy] = useState<boolean>(false);
@@ -144,7 +178,7 @@ export default function TestCaseSection() {
   );
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [selectedDropdownOption, setSelectedDropdownOption] = useState<
-    undefined | "changeStatus" | "changeModule" | "delete"
+    undefined | "changeTestCaseStatus" | "changeModule" | "deleteTestCases"
   >(undefined);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
@@ -155,7 +189,7 @@ export default function TestCaseSection() {
 
   useEffect(() => {
     setCheckedTestCases([]);
-  }, [projectId]);
+  }, [projectId, moduleId]);
 
   useEffect(() => {
     if (testcaseId) {
@@ -185,7 +219,7 @@ export default function TestCaseSection() {
   const { deleteTestCases, updateTestCasesStatus } =
     useTestCases(checkedTestCases);
 
-  const { updateModule, deleteModule } = useModalSubmit({
+  const { submitModules, updateModule, deleteModule } = useModalSubmit({
     onSuccess: refreshModules,
     onCancel: handleClosePopup,
     onCancelEdit: handleClosePopup,
@@ -210,14 +244,15 @@ export default function TestCaseSection() {
     setIsModalOpen(true);
   }
 
-  function showCreateTestCaseModal(type: "testCases" | "modules") {
-    setModalType(type);
+  function showCreateTestCaseModal() {
+    setModalType("testCases");
     setIsModalOpen(true);
   }
 
   function showCreateModuleModal() {
     setModalType("modules");
-    setIsModalOpen(true);
+    setPopupAction("newModule");
+    setIsPopupOpen(true);
   }
 
   function handleCloseModal() {
@@ -279,8 +314,31 @@ export default function TestCaseSection() {
     });
   }
 
+  const orderedTestCases: any[] = [];
+
+  const shouldRenderList = !moduleId && !isLoading && modules && testCases;
+
+  if (moduleId && testCases) {
+    const moduleTestCases = testCases.filter(
+      (tc: any) => +tc.module_id === +moduleId,
+    );
+    orderedTestCases.push(...moduleTestCases);
+  }
+
+  if (shouldRenderList) {
+    modules.forEach((module: any) => {
+      const moduleTestCases = testCases.filter(
+        (tc: any) => tc.module_id === module.id,
+      );
+
+      if (moduleTestCases.length > 0) {
+        orderedTestCases.push(...moduleTestCases);
+      }
+    });
+  }
+
   function handleGlobalChecked() {
-    const testCaseIds = testCases.map((tc: any) => tc.id);
+    const testCaseIds = orderedTestCases.map((tc: any) => tc.id);
 
     const areAllTestCasesChecked = testCaseIds.every((tcId: number) =>
       checkedTestCases.includes(tcId),
@@ -337,10 +395,6 @@ export default function TestCaseSection() {
     setIsEditing(true);
   }
 
-  function handleToggleDropdown() {
-    setIsDropdownOpen((prev) => !prev);
-  }
-
   function handleModuleAction(
     moduleName?: string,
     moduleId?: number,
@@ -358,55 +412,42 @@ export default function TestCaseSection() {
     setIsDropdownOpen(false);
   }
 
-  function handleSelectDropdownOption(option: "changeStatus") {
+  function handleSelectDropdownOption(
+    option: "changeTestCaseStatus" | "deleteTestCases",
+  ) {
     setSelectedDropdownOption(option);
-    setPopupAction("changeTestCaseStatus");
+    setPopupAction(option);
     setIsPopupOpen(true);
   }
 
   async function handleSubmitPopup(selectedOption?: any, formData?: any) {
-    if (selectedDropdownOption === "changeStatus") {
+    if (selectedDropdownOption === "changeTestCaseStatus") {
+      if (selectedOption === "Todo") {
+        selectedOption = "To Do";
+      }
       await updateTestCasesStatus(selectedOption);
       refresh();
-    } else if (selectedDropdownOption === "delete") {
+    } else if (selectedDropdownOption === "deleteTestCases") {
       await deleteTestCases();
       refresh();
     } else if (popupAction === "deleteModule") {
       await deleteModule(popupModuleId);
     } else if (popupAction === "editModule") {
       await updateModule(formData, popupModuleId);
+    } else if (popupAction === "newModule") {
+      await submitModules(formData);
     }
 
+    setPopupModuleName(undefined);
     setSelectedDropdownOption(undefined);
     setIsPopupOpen(false);
+    setCheckedTestCases([]);
   }
 
   function handleClosePopup() {
     setSelectedDropdownOption(undefined);
     setIsPopupOpen(false);
-  }
-
-  const orderedTestCases: any[] = [];
-
-  const shouldRenderList = !moduleId && !isLoading && modules && testCases;
-
-  if (moduleId && testCases) {
-    const moduleTestCases = testCases.filter(
-      (tc: any) => +tc.module_id === +moduleId,
-    );
-    orderedTestCases.push(...moduleTestCases);
-  }
-
-  if (shouldRenderList) {
-    modules.forEach((module: any) => {
-      const moduleTestCases = testCases.filter(
-        (tc: any) => tc.module_id === module.id,
-      );
-
-      if (moduleTestCases.length > 0) {
-        orderedTestCases.push(...moduleTestCases);
-      }
-    });
+    setPopupModuleName(undefined);
   }
 
   function showNextPreviousTestCase() {
@@ -465,35 +506,7 @@ export default function TestCaseSection() {
   useOnClickOutside(ref, handleClickOutside);
 
   return (
-    <div>
-      <SidebarHeader
-        title="Test cases"
-        type="testCases"
-        onClick={
-          modalType === "testCases"
-            ? showCreateTestCaseModal
-            : showCreateModuleModal
-        }
-        ref={ref}
-        onToggleDropdown={handleToggleDropdown}
-        isActiveDropdown={isDropdownOpen}
-        checkedElements={checkedTestCases}
-        dropdownOptions={[
-          {
-            label: "Change status",
-            onClick: () => handleSelectDropdownOption("changeStatus"),
-          },
-          {
-            label: "Delete",
-            onClick: () => handleSelectDropdownOption("delete"),
-          },
-          {
-            label: "Change module",
-            onClick: () => handleSelectDropdownOption("changeModule"),
-          },
-        ]}
-      />
-
+    <div className={styles.testCasesSection}>
       <TestCasesModulesSection
         modules={modules}
         testCases={testCases}
@@ -502,28 +515,37 @@ export default function TestCaseSection() {
         selectedModuleId={selectedModuleId}
         onModuleActionSelect={handleModuleAction}
       />
-
-      <div className={styles.listHeader}>
-        <label htmlFor="">
-          <input
-            type="checkbox"
-            name=""
-            id=""
-            checked={
-              testCases && testCases.length > 0
-                ? testCases.every((tc: any) => checkedTestCases.includes(tc.id))
-                : false
-            }
-            onChange={handleGlobalChecked}
-          />
-        </label>
-        <div>Test Case Name</div>
-        <div>Last Result</div>
-        <div>Execution</div>
-        <div>Last Execution Date</div>
-      </div>
+      {
+        <Actionbar
+          onNewTestClick={showCreateTestCaseModal}
+          onNewModuleClick={showCreateModuleModal}
+          onDropdownOption={handleSelectDropdownOption}
+          checkedTestCasesCounter={checkedTestCases.length}
+        />
+      }
 
       <div className={styles.list}>
+        <div className={styles.listHeader}>
+          <label htmlFor="">
+            <input
+              type="checkbox"
+              name=""
+              id=""
+              checked={
+                testCases && orderedTestCases.length > 0
+                  ? orderedTestCases.every((tc: any) =>
+                      checkedTestCases.includes(tc.id),
+                    )
+                  : false
+              }
+              onChange={handleGlobalChecked}
+            />
+          </label>
+          <div>Test Case Name</div>
+          <div>Last Result</div>
+          <div>Execution</div>
+          <div>Last Execution Date</div>
+        </div>
         {!moduleId &&
           !isLoading &&
           modules?.map((module: any) => {
@@ -718,16 +740,15 @@ export default function TestCaseSection() {
         />
       )}
 
-      {/* {isModalOpen && modalType === "modules" && (
-        // <Popup
-        //   moduleName={popupModuleName}
-        //   action={"editModule"}
-        //   config={POPUP_CONFIG2[popupAction]}
-        //   onCancel={handleClosePopup}
-        //   onSubmit={handleSubmitPopup}
-        //   type={popupType}
-        // />
-      )} */}
+      {isModalOpen && isPopupOpen && modalType === "modules" && (
+        <Popup
+          action={"editModule"}
+          config={POPUP_CONFIG["newModule"]}
+          onCancel={handleClosePopup}
+          onSubmit={handleSubmitPopup}
+          type={POPUP_CONFIG[popupAction].type}
+        />
+      )}
 
       {isPopupOpen && (
         <Popup
@@ -737,6 +758,7 @@ export default function TestCaseSection() {
           onCancel={handleClosePopup}
           onSubmit={handleSubmitPopup}
           type={POPUP_CONFIG[popupAction].type}
+          checkedItemsCounter={checkedTestCases.length}
         />
       )}
     </div>

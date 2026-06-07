@@ -1,16 +1,23 @@
 import { createPortal } from "react-dom";
 import styles from "./Popup.module.css";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import FormFieldWithLabel from "../common/FormFieldWithLabel/FormFieldWithLabel";
+import * as Dialog from "@radix-ui/react-dialog";
 
 interface PopupProps {
-  action: "editModule" | "deleteModule" | "changeTestCaseStatus";
+  action:
+    | "newModule"
+    | "editModule"
+    | "deleteModule"
+    | "deleteTestCases"
+    | "changeTestCaseStatus";
   moduleName?: string;
   config: any;
   onCancel: () => void;
   onSubmit: (selectedValue: string, formData?: any) => void;
   type: "edit" | "confirmDelete" | "option" | undefined;
+  checkedItemsCounter?: number;
 }
 
 export default function Popup({
@@ -19,16 +26,19 @@ export default function Popup({
   config,
   onCancel,
   onSubmit,
-  type,
+  checkedItemsCounter,
 }: PopupProps) {
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [formData, setFormData] = useState<Record<string, string>>({});
+
+  const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   useEffect(() => {
     if (config.fields && config.fields.length > 0) {
       const initialFormData = config.fields.reduce(
         (acc: Record<string, string>, field: any) => {
-          field.name === "moduleName";
           acc[field.name] = field.name === "moduleName" ? moduleName || "" : "";
           return acc;
         },
@@ -37,18 +47,25 @@ export default function Popup({
 
       setFormData(initialFormData);
     }
-  }, [config.fields]);
+  }, [config.fields, moduleName]);
 
-  function handleSelectChange(e: ChangeEvent<HTMLSelectElement>) {
-    setSelectedValue(e.target.value);
+  function handleSelectChange(fieldName: string, selectedValue: string) {
+    setSelectedValue(selectedValue);
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName]: selectedValue,
+    }));
   }
 
   function renderSubtitle() {
-    if (typeof config.subtitle === "function") {
+    if (typeof config.subtitle === "function" && action === "deleteModule") {
       return config.subtitle(moduleName);
+    } else if (
+      typeof config.subtitle === "function" &&
+      action === "deleteTestCases"
+    ) {
+      return config.subtitle(checkedItemsCounter || "undefined");
     }
-
-    return config.subtitle;
   }
 
   function handleInputChange(fieldName: string, newValue: string) {
@@ -59,62 +76,102 @@ export default function Popup({
   }
 
   return createPortal(
-    <div className={styles.popupOverlay}>
-      <div className={styles.popupContent}>
-        <div className={styles.title}>{config.title}</div>
-
-        <div className={styles.popupFields}>
-          {action === "editModule" &&
-            config.fields?.map((field: any) => {
-              return (
-                <FormFieldWithLabel
-                  key={field.id}
-                  type={field.type}
-                  label={field.label}
-                  id={field.id}
-                  name={field.name}
-                  value={formData[field.name as string] || ""}
-                  onValueChange={(value) =>
-                    handleInputChange(field.name, value)
-                  }
-                  placeholder={field.placeholder}
-                />
-              );
-            })}
-        </div>
-
-        {type === "select" && (
-          <select value={selectedValue} onChange={handleSelectChange}>
-            <option value="" disabled>
-              Choose new status
-            </option>
-            {options?.map((option) => (
-              <option value={option} key={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        )}
-        <div className={styles.subtitle}>{renderSubtitle()}</div>
-        <div className={styles.btnsSection}>
-          <button
-            onClick={onCancel}
-            className={clsx(styles.button, styles.secondaryBtn)}
+    <Dialog.Root
+      open={true}
+      onOpenChange={(open) => {
+        !open && onCancel();
+      }}
+    >
+      <Dialog.Portal>
+        {/* overlay zachowuje flexboxa – brak skakania layoutu */}
+        <Dialog.Overlay className={styles.popupOverlay}>
+          <Dialog.Content
+            ref={(node) => {
+              if (node && !portalContainer) {
+                setPortalContainer(node);
+              }
+            }}
+            className={styles.popupContent}
+            onPointerDownOutside={(event) => {
+              const target = event.target as HTMLElement;
+              const isSelectPortal =
+                target.closest("[data-radix-select-viewport]") ||
+                target.closest("[data-radix-popper-content-wrapper]") ||
+                target.closest(".selectContent");
+              if (isSelectPortal) {
+                event.preventDefault();
+              }
+            }}
+            onFocusOutside={(event) => {
+              // Pozwól focusowi przejść do Selecta
+              const target = event.target as HTMLElement;
+              const isSelectPortal =
+                target.closest("[data-radix-select-viewport]") ||
+                target.closest("[data-radix-popper-content-wrapper]") ||
+                target.closest(".selectContent");
+              if (isSelectPortal) {
+                event.preventDefault();
+              }
+            }}
           >
-            {config.cancelLabel}
-          </button>
-          <button
-            onClick={() => onSubmit(selectedValue, formData)}
-            className={clsx(
-              config.type === "edit" && styles.ctaBtnEdit,
-              config.type === "confirmDelete" && styles.ctaBtnConfirmDelete,
-            )}
-          >
-            {config.confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>,
+            {/* Tytuł jako wymagany element dostępności dla Dialogu */}
+            <Dialog.Title className={styles.title}>{config.title}</Dialog.Title>
+
+            {/* Ukrywamy domyślny opis, żeby Radix nie pluł ostrzeżeniami w konsoli */}
+            <Dialog.Description
+              aria-hidden="true"
+              style={{ display: "none" }}
+            />
+
+            <div className={styles.popupFields}>
+              {(action === "editModule" ||
+                action === "newModule" ||
+                action === "changeTestCaseStatus") &&
+                config.fields?.map((field: any) => {
+                  return (
+                    <FormFieldWithLabel
+                      key={field.id}
+                      type={field.type}
+                      label={field.label}
+                      id={field.id}
+                      name={field.name}
+                      value={formData[field.name as string] || ""}
+                      onValueChange={(value) =>
+                        handleInputChange(field.name, value)
+                      }
+                      onSelectChange={(value) =>
+                        handleSelectChange(field.name, value)
+                      }
+                      placeholder={field.placeholder}
+                      portalContainer={portalContainer}
+                    />
+                  );
+                })}
+            </div>
+
+            <div className={styles.subtitle}>{renderSubtitle()}</div>
+
+            <div className={styles.btnsSection}>
+              <button
+                onClick={onCancel}
+                className={clsx(styles.button, styles.secondaryBtn)}
+              >
+                {config.cancelLabel}
+              </button>
+              <button
+                onClick={() => onSubmit(selectedValue, formData)}
+                className={clsx(
+                  config.type === "edit" && styles.ctaBtnEdit,
+                  config.type === "confirmDelete" && styles.ctaBtnConfirmDelete,
+                )}
+              >
+                {config.confirmLabel}
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Overlay>
+      </Dialog.Portal>
+    </Dialog.Root>,
     document.body,
   );
 }

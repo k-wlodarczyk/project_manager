@@ -1,12 +1,17 @@
 import styles from "./FormFieldWithLabel.module.css";
 
+import SelectField from "../Select/SelectField";
+
 interface FormFieldWithLabelProps {
-  type: "input";
+  type: "input" | "select";
   label: string;
   id: string;
   name: string;
   value?: string;
+  portalContainer?: HTMLElement | null;
   onValueChange: (newValue: string) => void;
+  onSelectChange: (selectedValue: string) => void;
+
   placeholder?: string;
 }
 
@@ -17,14 +22,16 @@ export default function FormFieldWithLabel({
   name,
   placeholder,
   value,
+  onSelectChange,
   onValueChange,
+  portalContainer,
   ...props
 }: FormFieldWithLabelProps) {
   return (
     <>
-      {type === "input" && (
-        <div className={styles.fieldWithLabel}>
-          <label htmlFor={id}>{label}</label>
+      <div className={styles.fieldWithLabel}>
+        <label htmlFor={id}>{label}</label>
+        {type === "input" && (
           <input
             type="text"
             id={id}
@@ -32,10 +39,21 @@ export default function FormFieldWithLabel({
             placeholder={placeholder}
             className={styles.input}
             value={value}
-            onChange={(e) => onValueChange((e.target as HTMLInputElement).value)}
+            onChange={(e) =>
+              onValueChange((e.target as HTMLInputElement).value)
+            }
+            {...props}
           />
-        </div>
-      )}
+        )}
+        {type === "select" && (
+          <SelectField
+            value={value}
+            onSelect={onSelectChange}
+            {...props}
+            portalContainer={portalContainer}
+          />
+        )}
+      </div>
     </>
   );
 }

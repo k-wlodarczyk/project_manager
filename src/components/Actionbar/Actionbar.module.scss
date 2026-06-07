@@ -1,0 +1,83 @@
+@use "../../styles/utils" as *;
+
+.actionbar {
+  display: flex;
+  // justify-content: space-between;
+  gap: 1.6rem;
+  margin: 2.4rem;
+  padding: 1.2rem 1.6rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--dark-navy);
+  background-color: var(--containerBgNavy);
+  border: var(--containerBorderNavy);
+  border-radius: 6px;
+}
+
+.selectedItemsCounter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-right: 1px solid rgba(99, 14, 212, 0.2);
+  padding-right: 1.6rem;
+}
+
+.spanIcon {
+  @extend %centeredFlex;
+}
+
+.spanIcon ion-icon {
+  font-size: 1.6rem;
+}
+
+.selectedItemsActionBtns {
+  display: flex;
+  gap: 1.2rem;
+
+  .selectedItemsActionBtn {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    background-color: #fff;
+    // border-right: 1px solid rgba(124, 58, 237, 0.2);
+
+    @include mirrorButton(var(--dark-navy), #fff);
+  }
+
+  .selectedItemsActionBtnDelete {
+    @include mirrorButton(var(--red), #fff);
+  }
+}
+
+.newItemBtns {
+  display: flex;
+  gap: 0.8rem;
+  margin-left: auto;
+  border-left: 1px solid rgba(124, 58, 237, 0.2);
+  padding-left: 1.6rem;
+
+  .newItemBtn {
+    display: flex;
+    gap: 0.6rem;
+    text-transform: uppercase;
+  }
+
+  .newTestCaseBtn {
+    background-color: var(--dark-navy);
+    color: #fff;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--dark-navy) 90%, #fff);
+    }
+  }
+
+  .newModuleBtn {
+    background-color: rgb(124, 58, 237);
+    color: #fff;
+
+    &:hover {
+      background-color: color-mix(in srgb, rgb(124, 58, 237) 80%, #000);
+    }
+  }
+}

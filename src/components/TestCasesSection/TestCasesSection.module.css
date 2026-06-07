@@ -1,16 +1,22 @@
+.testCasesSection {
+  background-color: rgb(254, 247, 255);
+  padding: 0 2.4rem;
+  min-width: 0;
+}
+
 .list {
-  /* margin-top: 1.6rem; */
+  margin: 2.4rem;
   display: flex;
   flex-direction: column;
-  /* gap: 1.2rem; */
   font-size: 1.4rem;
+  border: var(--containerBorderNavy);
+  border-radius: 4px;
 }
 
 .listHeader {
   border-bottom: 1px solid #e6e6e6;
-  /* font-size: 1.6rem; */
   font-weight: 600;
-  background-color: #fbfbfb;
+  background-color: var(--containerBgNavy);
 }
 
 .listHeader label {
@@ -21,7 +27,6 @@
 
 .listHeader,
 .listItem {
-  margin-top: 1.2rem;
   display: grid;
   grid-template-columns: 1fr 27fr 3fr 3fr 3fr;
   align-items: center;
@@ -40,6 +45,7 @@
 }
 
 .listItem {
+  background-color: #fff;
   transition: 0.4s ease all;
 }
 .listItem:hover {

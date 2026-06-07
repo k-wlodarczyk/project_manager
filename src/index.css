@@ -1,3 +1,26 @@
+:root {
+  /* COLORS */
+  --dark-navy: #1e0052;
+  --red: #ac1818;
+  --green: #587a25;
+
+  /* Test case statuses */
+  --bgPassed: #587a25;
+  --bgFailed: #ac1818;
+  --bgSkipped: #c46f01;
+  --bgTodo: #555;
+
+  /* Form fields */
+  --bgFormField: #f9f1ff;
+  --borderFormField: 1px solid #ccc3d8;
+
+  /* Containers */
+  --containerBorderNavy: 1px solid #7c3aed33;
+  --containerBgNavy: rgba(124, 58, 237, 0.09);
+}
+
+/* --- GENERAL --- */
+
 * {
   margin: 0;
   padding: 0;
@@ -14,4 +37,10 @@ html {
 
 body {
   font-family: system-ui, sans-serif;
+}
+
+.centeredFlex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

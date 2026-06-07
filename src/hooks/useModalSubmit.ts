@@ -38,7 +38,7 @@ export function useModalSubmit({
       .from("modules")
       .insert([
         {
-          name: formData.name,
+          name: formData.moduleName,
           description: formData.description,
           project_id: projectId,
         },
