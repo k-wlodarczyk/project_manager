@@ -1,123 +1,87 @@
-// import SidebarHeader from "../SidebarHeader/SidebarHeader";
-// import styles from "./Sidebar.module.css";
-// import Modal from "../../Modal components/Modal/Modal";
-// import SidebarItem from "../SidebarItem/SidebarItem";
-// import { useParams } from "react-router-dom";
-// import { useFetchItems } from "../../../hooks/useFetchItems";
-// import { useEffect, useMemo, useState } from "react";
+import { useState, type ReactNode } from "react";
+import styles from "./Sidebar.module.scss";
+import Popup from "../../Popup/Popup";
+import { useModalSubmit } from "../../../hooks/useModalSubmit";
+import { useFetchItems } from "../../../hooks/useFetchItems";
 
-// interface SidebarProps {
-//   type: "projects" | "modules";
-// }
+type PopupAction = "newProject";
 
-// export default function Sidebar({ type }: SidebarProps) {
-//   const { projectId, moduleId } = useParams();
+type PopupField = {
+  name: string;
+  label: string;
+  id?: string;
+  type: "input" | "select";
+  placeholder?: string;
+  options?: any[];
+};
 
-//   const { data, refresh } = useFetchItems(
-//     type === "projects" ? "projects" : "modules",
-//     "view",
-//   );
+const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
+  newProject: {
+    title: "New Project",
+    subtitle: "",
+    confirmLabel: "Create",
+    cancelLabel: "Cancel",
+    type: "create",
+    fields: [
+      {
+        label: "Project Name",
+        type: "input",
+        name: "projectName",
+        id: "projectName",
+        placeholder: "Insert new project name...",
+      },
+    ],
+  },
+};
 
-//   const { data: fetchedTestCases, refresh: refreshTestCaseCounter } =
-//     useFetchItems("test_cases", "view", undefined, "all");
+interface PopupSetting {
+  title: string;
+  subtitle: string | ((param: string | number) => ReactNode);
+  confirmLabel: string;
+  cancelLabel: string;
+  type: "edit" | "confirmDelete" | "create";
+  fields?: PopupField[];
+}
 
-//   const [testCases, setTestCases] = useState<any[]>([]);
-//   const [isModalOpen, setIsModalOpen] = useState(false);
+export default function Sidebar() {
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
-//   useEffect(() => {
-//     setTestCases(fetchedTestCases);
-//   }, [fetchedTestCases]);
+  const { refresh: refreshProjects } = useFetchItems("projects", "view");
 
-//   const projectFields = [
-//     { name: "name", label: "Project Name", placeholder: "Enter project name" },
-//     {
-//       name: "description",
-//       label: "Description",
-//       placeholder: "Enter project description (optional)",
-//     },
-//     {
-//       name: "link",
-//       label: "Link",
-//       placeholder: "https://example.com (optional)",
-//     },
-//   ];
+  const { submitProject } = useModalSubmit({
+    onSuccess: refreshProjects,
+    onCancel: handleClosePopup,
+    onCancelEdit: handleClosePopup,
+  });
 
-//   const moduleFields = [
-//     { name: "name", label: "Module Name", placeholder: "Enter name" },
-//     { name: "description", label: "Description", placeholder: "Enter desc" },
-//   ];
+  function handleSubmitPopup(_: any, formData: any) {
+    submitProject(formData);
+  }
 
-//   // function countTestCases(id: number, isProject: boolean) {
-//   //   if (isProject) {
-//   //     return testCases?.filter((tc: any) => tc.project_id === id).length;
-//   //   } else {
-//   //     return testCases?.filter((tc: any) => tc.module_id === id).length;
-//   //   }
-//   // }
+  function handleClosePopup() {
+    setIsPopupOpen(false);
+  }
 
-//   const countTestCases = useMemo(() => {
-//     return (id: number, isProject: boolean) => {
-//       if (!testCases) return 0;
-
-//       if (isProject) {
-//         return testCases.filter((tc: any) => tc.project_id === id).length;
-//       } else {
-//         return testCases.filter((tc: any) => tc.module_id === id).length;
-//       }
-//     };
-//   }, [testCases]);
-
-//   return (
-//     <aside className={styles.sidebar}>
-//       {isModalOpen && (
-//         <Modal
-//           type={type}
-//           title={type === "projects" ? "New project" : "New module"}
-//           onSuccess={() => {
-//             refresh();
-//             refreshTestCaseCounter();
-//           }}
-//           subtitle={
-//             type === "projects"
-//               ? "Create a new project to organize your test cases."
-//               : "Create a new module to organize test cases."
-//           }
-//           onCancel={() => setIsModalOpen(false)}
-//           fields={type === "projects" ? projectFields : moduleFields}
-//           viewMode="create"
-//           onEdit={() => {}}
-//           onCancelEdit={() => {}}
-//           onCopy={() => {}}
-//         />
-//       )}
-//       <SidebarHeader
-//         title={type === "projects" ? "Projects" : "Modules"}
-//         type={type}
-//         onClick={() => setIsModalOpen(true)}
-//       />
-//       <ul className={styles.elements}>
-//         {data?.map((item: any) => {
-//           const isProjectType = type === "projects";
-
-//           const testCaseCounter = countTestCases(item.id, isProjectType);
-
-//           return (
-//             <li key={item.id}>
-//               <SidebarItem
-//                 projectId={isProjectType ? item.id : Number(projectId)}
-//                 moduleId={isProjectType ? undefined : item.id}
-//                 type={type}
-//                 isSelected={
-//                   item.id.toString() === (isProjectType ? projectId : moduleId)
-//                 }
-//                 counter={testCaseCounter}
-//               >
-//                 {item.name}
-//               </SidebarItem>
-//             </li>
-//           );
-//         })}
-//       </ul>
-//     </aside>
-//   );
-// }
+  return (
+    <div className={styles.sidebar}>
+      <button
+        className={styles.newProjectBtn}
+        onClick={() => setIsPopupOpen(true)}
+      >
+        <span className={styles.spanIcon}>
+          <ion-icon name="add-outline"></ion-icon>
+        </span>
+        new project
+      </button>
+      {isPopupOpen && (
+        <Popup
+          action="newProject"
+          config={POPUP_CONFIG["newProject"]}
+          onSubmit={handleSubmitPopup}
+          onCancel={handleClosePopup}
+          type={POPUP_CONFIG["newProject"].type}
+        />
+      )}
+    </div>
+  );
+}

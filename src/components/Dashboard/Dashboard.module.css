@@ -1,5 +1,6 @@
 .dashboard {
   height: 100%;
   display: grid;
+  grid-template-columns: 12fr 88fr;
   border-top: 1px solid #e6e6e6;
 }

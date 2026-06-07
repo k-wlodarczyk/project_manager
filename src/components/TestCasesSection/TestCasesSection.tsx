@@ -578,7 +578,9 @@ export default function TestCaseSection() {
                         onChange={() => handleModuleChecked(module.id)}
                       />
                     </label>
-                    <div>MODULE: {module.name}</div>
+                    <div className={styles.moduleName}>
+                      MODULE: {module.name}
+                    </div>
                   </div>
                   {testCases
                     ?.filter(
@@ -613,7 +615,9 @@ export default function TestCaseSection() {
                             />
                           </label>
 
-                          <div>{filtered.name}</div>
+                          <div className={styles.testCaseName}>
+                            {filtered.name}
+                          </div>
                           <div
                             className={clsx(
                               styles.status,
@@ -648,7 +652,7 @@ export default function TestCaseSection() {
           })}
 
         {moduleId && (
-          <div className={styles.list}>
+          <div>
             {testCases
               ?.filter((testCase: any) => {
                 const matchProject = projectId
@@ -687,7 +691,7 @@ export default function TestCaseSection() {
                       />
                     </label>
 
-                    <div>{testCase.name}</div>
+                    <div className={styles.testCaseName}>{testCase.name}</div>
 
                     <div
                       className={clsx(

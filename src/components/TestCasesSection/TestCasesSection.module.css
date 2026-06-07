@@ -19,29 +19,35 @@
   background-color: var(--containerBgNavy);
 }
 
-.listHeader label {
+.listHeader label,
+.moduleHeader label,
+.listItem label {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
+}
+
+.listHeader,
+.listItem,
+.moduleHeader {
+  padding: 0.9rem 1.2rem;
+  gap: 1.2rem;
 }
 
 .listHeader,
 .listItem {
   display: grid;
-  grid-template-columns: 1fr 27fr 3fr 3fr 3fr;
+  grid-template-columns: 1fr 10fr 2fr 2fr 2fr;
   align-items: center;
-  gap: 1.2rem;
-  padding: 0.9rem 0.6rem;
   border-bottom: 1px solid #eee;
   text-align: center;
 }
 
 .moduleHeader {
   display: grid;
-  grid-template-columns: 1fr 48fr;
-  padding: 1.2rem 0.6rem;
+  grid-template-columns: 1fr 16fr;
+  align-items: center;
   background-color: #ddd;
-  text-align: center;
 }
 
 .listItem {
@@ -49,8 +55,20 @@
   transition: 0.4s ease all;
 }
 .listItem:hover {
-  background-color: #e6e6e6;
+  background-color: var(--containerBgNavy);
   cursor: pointer;
+}
+
+.testCaseName,
+.moduleName {
+  justify-self: flex-start;
+  text-align: left;
+
+  padding-left: 2.4rem;
+}
+
+.testCaseName {
+  font-weight: 500;
 }
 
 ul {

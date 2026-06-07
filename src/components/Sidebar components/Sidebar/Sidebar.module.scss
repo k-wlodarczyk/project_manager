@@ -1,0 +1,29 @@
+@use "../../../styles/utils" as *;
+
+.sidebar {
+  border-right: 1px solid #e6e6e6;
+  padding: 2.4rem 1.2rem;
+  background-color: var(--containerBgNavy);
+}
+
+.spanIcon {
+  @extend %centeredFlex;
+  font-size: 1.6rem;
+}
+
+.newProjectBtn {
+  width: 100%;
+
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background-color: var(--dark-navy);
+  color: #fff;
+  text-transform: uppercase;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--dark-navy) 90%, #fff);
+  }
+}

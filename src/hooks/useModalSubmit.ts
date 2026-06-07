@@ -15,11 +15,11 @@ export function useModalSubmit({
   const { projectId } = useParams();
 
   const submitProject = async (formData: any) => {
-    if (!formData.name) return alert("Project name is required");
+    if (!formData.projectName) return alert("Project name is required");
 
     const { data, error } = await supabase.from("projects").insert([
       {
-        name: formData.name,
+        name: formData.projectName,
         description: formData.description,
         url: formData.link,
       },

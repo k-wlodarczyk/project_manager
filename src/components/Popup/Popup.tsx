@@ -7,6 +7,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 
 interface PopupProps {
   action:
+    | "newProject"
     | "newModule"
     | "editModule"
     | "deleteModule"
@@ -16,7 +17,7 @@ interface PopupProps {
   config: any;
   onCancel: () => void;
   onSubmit: (selectedValue: string, formData?: any) => void;
-  type: "edit" | "confirmDelete" | "option" | undefined;
+  type: "edit" | "create" | "confirmDelete" | "option" | undefined;
   checkedItemsCounter?: number;
 }
 
@@ -83,7 +84,6 @@ export default function Popup({
       }}
     >
       <Dialog.Portal>
-        {/* overlay zachowuje flexboxa – brak skakania layoutu */}
         <Dialog.Overlay className={styles.popupOverlay}>
           <Dialog.Content
             ref={(node) => {
@@ -103,7 +103,6 @@ export default function Popup({
               }
             }}
             onFocusOutside={(event) => {
-              // Pozwól focusowi przejść do Selecta
               const target = event.target as HTMLElement;
               const isSelectPortal =
                 target.closest("[data-radix-select-viewport]") ||
@@ -114,10 +113,8 @@ export default function Popup({
               }
             }}
           >
-            {/* Tytuł jako wymagany element dostępności dla Dialogu */}
             <Dialog.Title className={styles.title}>{config.title}</Dialog.Title>
 
-            {/* Ukrywamy domyślny opis, żeby Radix nie pluł ostrzeżeniami w konsoli */}
             <Dialog.Description
               aria-hidden="true"
               style={{ display: "none" }}
@@ -126,7 +123,8 @@ export default function Popup({
             <div className={styles.popupFields}>
               {(action === "editModule" ||
                 action === "newModule" ||
-                action === "changeTestCaseStatus") &&
+                action === "changeTestCaseStatus" ||
+                action === "newProject") &&
                 config.fields?.map((field: any) => {
                   return (
                     <FormFieldWithLabel
@@ -162,6 +160,7 @@ export default function Popup({
                 onClick={() => onSubmit(selectedValue, formData)}
                 className={clsx(
                   config.type === "edit" && styles.ctaBtnEdit,
+                  config.type === "create" && styles.ctaBtnEdit,
                   config.type === "confirmDelete" && styles.ctaBtnConfirmDelete,
                 )}
               >
