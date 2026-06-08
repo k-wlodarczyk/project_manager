@@ -71,17 +71,12 @@ export default function Modal({
 
   const { testCaseSteps, newStep, newStepAfterIndex, updateSteps, deleteStep } =
     useTestCaseSteps(fetchedSteps);
-  const {
-    submitProject,
-    updateProject,
-    submitModules,
-    submitTestCases,
-    updateTestCase,
-  } = useModalSubmit({
-    onSuccess,
-    onCancel,
-    onCancelEdit,
-  });
+  const { submitProject, submitModules, submitTestCases, updateTestCase } =
+    useModalSubmit({
+      onSuccess,
+      onCancel,
+      onCancelEdit,
+    });
 
   const [formData, setFormData] = useState<Record<string, string>>(() => {
     return fields.reduce(

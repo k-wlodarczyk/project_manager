@@ -591,15 +591,15 @@ export default function TestCaseSection() {
                     .map((filtered: any) => (
                       <Link
                         to={`/project/${projectId}/testCase/${filtered.id}`}
-                        className={clsx(
-                          styles.testCaseLink,
-                          isModalOpen &&
-                            selectedTestCaseId === filtered.id &&
-                            styles.selectedItem,
-                        )}
+                        className={clsx(styles.testCaseLink)}
                       >
                         <div
-                          className={styles.listItem}
+                          className={clsx(
+                            styles.listItem,
+                            isModalOpen &&
+                              selectedTestCaseId === filtered.id &&
+                              styles.selectedItem,
+                          )}
                           onClick={() => showViewTestCaseModal(filtered.id)}
                         >
                           <label

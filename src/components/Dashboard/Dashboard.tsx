@@ -7,12 +7,12 @@ import Header from "../Header/Header";
 
 export default function Dashboard() {
   return (
-    <>
+    <div className={styles.appContent}>
       <Header>Project Manager</Header>
       <div className={styles.dashboard}>
         <Sidebar />
         <TestCaseSection />
       </div>
-    </>
+    </div>
   );
 }

@@ -11,6 +11,8 @@
   font-size: 1.4rem;
   border: var(--containerBorderNavy);
   border-radius: 4px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .listHeader {
@@ -126,5 +128,5 @@ ul {
 }
 
 .selectedItem {
-  background-color: #aaa;
+  background-color: #aaa !important;
 }
