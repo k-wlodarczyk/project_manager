@@ -442,12 +442,14 @@ export default function TestCaseSection() {
     setSelectedDropdownOption(undefined);
     setIsPopupOpen(false);
     setCheckedTestCases([]);
+    setModalType("testCases");
   }
 
   function handleClosePopup() {
     setSelectedDropdownOption(undefined);
     setIsPopupOpen(false);
     setPopupModuleName(undefined);
+    setModalType("testCases");
   }
 
   function showNextPreviousTestCase() {
