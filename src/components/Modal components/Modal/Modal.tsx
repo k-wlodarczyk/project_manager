@@ -292,7 +292,7 @@ export default function Modal({
         </div>
         <div className={styles.modalFooter}>
           <div></div>
-          {type === "testCases" && viewMode === "view" && (
+          {type === "testCases" && viewMode === "view" ? (
             <div className={styles.nextPreviousSection}>
               <button
                 disabled={!navigationEnabled?.previousEnabled}
@@ -307,6 +307,8 @@ export default function Modal({
                 Next &rarr;
               </button>
             </div>
+          ) : (
+            <div></div>
           )}
           <div className={styles.modalBtns}>
             <ModalActionBtns
