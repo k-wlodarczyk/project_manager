@@ -44,6 +44,7 @@ export default function ModalField({
           name={name}
           label={label}
           onSelectChange={onSelectChange}
+          placeholder={placeholder}
           options={options}
           value={value}
           badge={badge}

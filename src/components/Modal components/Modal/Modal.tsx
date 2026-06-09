@@ -264,6 +264,7 @@ export default function Modal({
                   }
                   wholeLine={true}
                   badge={true}
+                  placeholder="Select status"
                 />
                 <ModalField
                   name="name"
@@ -283,6 +284,7 @@ export default function Modal({
                   }
                   wholeLine={true}
                   badge={true}
+                  placeholder="Select execution type"
                 />
               </>
             )}

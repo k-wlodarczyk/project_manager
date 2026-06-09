@@ -382,6 +382,7 @@ export default function TestCaseSection() {
       })),
       defaultValue: moduleId || "",
       asideForm: true,
+      placeholder: "Select module",
     },
     { name: "name", label: "Test Case Name", placeholder: "Enter name" },
     {
@@ -394,12 +395,14 @@ export default function TestCaseSection() {
       label: "Execution",
       hideInFormRows: true,
       badge: true,
+      placeholder: "Select execution type",
     },
     {
       name: "status",
       label: "Status",
       hideInFormRows: true,
       badge: true,
+      placeholder: "Select status",
     },
   ];
 
