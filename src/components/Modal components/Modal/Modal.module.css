@@ -18,7 +18,7 @@
   padding: 2rem;
   border-radius: 1rem;
   width: 70%;
-  max-height: 95vh;
+  height: 95vh;
   overflow-y: auto;
 }
 
@@ -35,7 +35,6 @@
   display: grid;
   grid-template-columns: 80fr 20fr;
   gap: 2rem;
-  max-height: 70%;
 
   flex: 1;
   min-height: 0;
