@@ -26,6 +26,7 @@ interface ModalProps {
   navigationEnabled?: { previousEnabled: boolean; nextEnabled: boolean };
   onNextTestCase?: () => void;
   onPreviousTestCase?: () => void;
+  badge?: boolean;
 }
 
 const DB_TYPE = {
@@ -109,6 +110,9 @@ export default function Modal({
   }, [fetchedItem, viewMode, fields, objectId]);
 
   const handleChange = async (name: string, value: string) => {
+    if (value === "Todo") {
+      value = "To Do";
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (
@@ -132,7 +136,6 @@ export default function Modal({
     }
     if (type === "modules") {
       return isNewRecord ? submitModules(formData) : alert("ERROR");
-      // : updateModule(formData, objectId!);
     }
     if (type === "testCases") {
       return isNewRecord
@@ -155,68 +158,138 @@ export default function Modal({
         </button>
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.subtitle}>{subtitle}</p>
-        <div className={styles.modalFields}>
-          {fields.map((field) => {
-            if (field.hideInFormRows) return;
-            return (
-              <ModalField
-                key={field.name}
-                name={field.name}
-                label={field.label}
-                disabled={shouldDisableFields}
-                placeholder={shouldDisableFields ? "" : field.placeholder}
-                type={field.type || "text"}
-                value={formData[field.name]}
-                defaultValue={field.defaultValue || ""}
-                options={field.options}
-                onChange={(e: any) => handleChange(field.name, e.target.value)}
-                wholeLine={true}
-              />
-            );
-          })}
+        <div className={styles.mainSection}>
+          <div className={styles.modalFields}>
+            {fields.map((field) => {
+              if (field.hideInFormRows || field.asideForm) return;
 
-          {type === "testCases" && (
-            <ModalTestCaseSteps
-              testCaseSteps={testCaseSteps}
-              handleNewTestCaseStep={newStep}
-              handleNewTestCaseStepAfterIndex={newStepAfterIndex}
-              handleUpdateTestCaseSteps={updateSteps}
-              handleDeleteTestCaseStep={deleteStep}
-              disabled={shouldDisableFields}
-            />
-          )}
+              let fieldValue = formData[field.name];
+
+              if (field.name === "module_id") {
+                const selectedOption = field.options?.find(
+                  (opt: any) => opt.value == formData.module_id,
+                );
+                fieldValue = selectedOption
+                  ? selectedOption.label
+                  : formData.module_id;
+              }
+
+              return (
+                <ModalField
+                  key={field.name}
+                  name={field.name}
+                  label={field.label}
+                  disabled={shouldDisableFields}
+                  placeholder={shouldDisableFields ? "" : field.placeholder}
+                  type={field.type || "text"}
+                  value={fieldValue}
+                  defaultValue={field.defaultValue || ""}
+                  options={field.options}
+                  onChange={(e: any) =>
+                    handleChange(field.name, e.target.value)
+                  }
+                  onSelectChange={(value: string) =>
+                    handleChange(field.name, value)
+                  }
+                  wholeLine={true}
+                />
+              );
+            })}
+
+            {type === "testCases" && (
+              <ModalTestCaseSteps
+                testCaseSteps={testCaseSteps}
+                handleNewTestCaseStep={newStep}
+                handleNewTestCaseStepAfterIndex={newStepAfterIndex}
+                handleUpdateTestCaseSteps={updateSteps}
+                handleDeleteTestCaseStep={deleteStep}
+                disabled={shouldDisableFields}
+              />
+            )}
+          </div>
+          <div className={styles.additionalSection}>
+            {fields.map((field) => {
+              if (field.hideInFormRows || !field.asideForm) return;
+
+              let fieldValue = formData[field.name];
+
+              if (field.name === "module_id") {
+                const selectedOption = field.options?.find(
+                  (opt: any) => opt.value == formData.module_id,
+                );
+                fieldValue = selectedOption
+                  ? selectedOption.label
+                  : formData.module_id;
+              }
+
+              return (
+                <ModalField
+                  key={field.name}
+                  name={field.name}
+                  label={field.label}
+                  disabled={shouldDisableFields}
+                  placeholder={shouldDisableFields ? "" : field.placeholder}
+                  type={field.type || "text"}
+                  value={fieldValue}
+                  defaultValue={field.defaultValue || ""}
+                  options={field.options}
+                  onChange={(e: any) =>
+                    handleChange(field.name, e.target.value)
+                  }
+                  onSelectChange={(value: string) =>
+                    handleChange(field.name, value)
+                  }
+                  wholeLine={true}
+                  badge={field.badge}
+                />
+              );
+            })}
+
+            {type === "testCases" && (
+              <>
+                <ModalField
+                  name="name"
+                  type="select"
+                  label="Status"
+                  value={formData.status === "To Do" ? "Todo" : formData.status}
+                  disabled={false}
+                  options={[
+                    { label: "To Do", value: "Todo" },
+                    { label: "Passed", value: "Passed" },
+                    { label: "Failed", value: "Failed" },
+                    { label: "Skipped", value: "Skipped" },
+                  ]}
+                  onSelectChange={(value: string) =>
+                    handleChange("status", value)
+                  }
+                  wholeLine={true}
+                  badge={true}
+                />
+                <ModalField
+                  name="name"
+                  type="select"
+                  label="Execution"
+                  value={formData.execution}
+                  disabled={shouldDisableFields}
+                  options={[
+                    { label: "Manual", value: "Manual" },
+                    { label: "Automated", value: "Automated" },
+                  ]}
+                  onChange={(e: any) =>
+                    handleChange("execution", e.target.value)
+                  }
+                  onSelectChange={(value: string) =>
+                    handleChange("execution", value)
+                  }
+                  wholeLine={true}
+                  badge={true}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className={styles.modalFooter}>
-          {type === "testCases" && (
-            <div className={styles.modalFooterExecution}>
-              <ModalField
-                name="name"
-                type="select"
-                label="Execution"
-                value={formData.execution}
-                disabled={shouldDisableFields}
-                options={[
-                  { label: "Manual", value: "Manual" },
-                  { label: "Automated", value: "Automated" },
-                ]}
-                onChange={(e: any) => handleChange("execution", e.target.value)}
-              />
-              <ModalField
-                name="name"
-                type="select"
-                label="Status"
-                value={formData.status}
-                disabled={false}
-                options={[
-                  { label: "To Do", value: "To Do" },
-                  { label: "Passed", value: "Passed" },
-                  { label: "Failed", value: "Failed" },
-                  { label: "Skipped", value: "Skipped" },
-                ]}
-                onChange={(e: any) => handleChange("status", e.target.value)}
-              />
-            </div>
-          )}
+          <div></div>
           {type === "testCases" && viewMode === "view" && (
             <div className={styles.nextPreviousSection}>
               <button

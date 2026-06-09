@@ -4,51 +4,82 @@ import clsx from "clsx";
 
 interface SelectFieldProps {
   value?: string;
-  onSelect: (selectedValue: string) => void;
+  onSelect?: (selectedValue: string) => void;
+  placeholder?: string;
+  options?: any[];
   portalContainer?: HTMLElement | null;
+  badge?: boolean;
+  disabled?: boolean;
 }
 
 const getBadgeClass = (status: string | undefined) => {
-  if (status === "Passed") return styles.selectPassed;
-  if (status === "Failed") return styles.selectFailed;
-  if (status === "Skipped") return styles.selectSkipped;
-  if (status === "Todo") return styles.selectTodo;
-  return "";
+  return styles[`select${status}`];
 };
-
-const defaultValue = "Todo";
 
 export default function SelectField({
   value,
   onSelect,
+  placeholder,
+  options,
   portalContainer,
+  badge,
+  disabled,
 }: SelectFieldProps) {
   return (
     <Select.Root
       defaultValue="Todo"
       value={value || ""}
       onValueChange={onSelect}
+      // open={value === "Passed" ? true : false}
     >
-      <Select.Trigger className={styles.selectTrigger}>
+      <Select.Trigger className={styles.selectTrigger} disabled={disabled}>
         {value ? (
-          <span className={clsx(styles.statusBadge, getBadgeClass(value))}>
-            {value === "Todo" ? "To Do" : value.toUpperCase()}
+          <span
+            className={clsx(
+              badge && styles.badge,
+              badge && getBadgeClass(value),
+            )}
+          >
+            {value === "Todo"
+              ? "To Do"
+              : typeof value === "string"
+                ? value.toUpperCase()
+                : value}
           </span>
         ) : (
-          <Select.Value placeholder="Select new status..." />
+          <Select.Value placeholder={placeholder} />
         )}
       </Select.Trigger>
-      <Select.Portal container={portalContainer}>
+      <Select.Portal container={portalContainer || document.body}>
         <Select.Content
-          onKeyDown={(e) => {
-            console.log("SELECT", e.key);
-          }}
           position="popper"
           sideOffset={4}
           className={styles.selectContent}
         >
           <Select.Viewport className={styles.selectViewport}>
-            <Select.Item value="Passed" className={clsx(styles.selectItem)}>
+            {options?.map((option) => (
+              <Select.Item
+                key={option.value}
+                value={option.value}
+                className={clsx(styles.selectItem)}
+              >
+                <Select.ItemText>
+                  {badge ? (
+                    <span
+                      className={clsx(
+                        styles.badge,
+                        getBadgeClass(option.value),
+                      )}
+                    >
+                      {option.label.toUpperCase()}
+                    </span>
+                  ) : (
+                    option.label
+                  )}
+                </Select.ItemText>
+              </Select.Item>
+            ))}
+            {/* <Select.Item value="Passed" className={clsx(styles.selectItem)}>
               <span className={clsx(styles.statusBadge, styles.selectPassed)}>
                 {" "}
                 PASSED
@@ -71,7 +102,7 @@ export default function SelectField({
                 {" "}
                 TO DO
               </span>
-            </Select.Item>
+            </Select.Item> */}
           </Select.Viewport>
         </Select.Content>
       </Select.Portal>

@@ -13,6 +13,7 @@
   /* Form fields */
   --bgFormField: #f9f1ff;
   --borderFormField: 1px solid #ccc3d8;
+  --colorFormFieldDisabled: rgb(28, 26, 32);
 
   /* Containers */
   --containerBorderNavy: 1px solid #7c3aed33;
@@ -43,4 +44,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+html {
+  scrollbar-gutter: stable;
 }

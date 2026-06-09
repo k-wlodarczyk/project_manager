@@ -18,7 +18,7 @@ label {
 
 input,
 select {
-  background-color: #f3f3f3;
+  background-color: var(--bgFormField);
   border: none;
   padding: 1.2rem;
   border-radius: 0.6rem;
@@ -26,9 +26,9 @@ select {
 
 input:disabled,
 select:disabled {
-  background-color: #f3f3f3;
+  background-color: var(--bgFormField);
   opacity: 1;
-  color: #777;
+  color: var(--colorFormFieldDisabled);
 }
 
 .disabledSelect {

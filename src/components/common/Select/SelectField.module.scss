@@ -21,9 +21,10 @@
 
 .selectItem {
   font-size: 1.4rem;
-  padding: 0.6rem;
+  padding: 0.4rem 0.6rem;
   text-transform: uppercase;
   outline: none;
+  color: black;
 }
 
 .selectItem:hover,
@@ -33,7 +34,7 @@
   color: #fff;
 }
 
-.statusBadge {
+.badge {
   padding: 0.4rem 0.6rem;
   display: inline-block;
   border-radius: 4px;
@@ -54,4 +55,12 @@
 
 .selectTodo {
   background-color: var(--bgTodo);
+}
+
+.selectManual {
+  background-color: rgb(184, 1, 184);
+}
+
+.selectAutomated {
+  background-color: green;
 }

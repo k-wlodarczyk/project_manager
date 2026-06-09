@@ -32,6 +32,8 @@ type PopupField = {
   type: "input" | "select";
   placeholder?: string;
   options?: any[];
+  badge?: boolean;
+  styleTarget?: "container" | "text";
 };
 
 interface PopupSetting {
@@ -114,7 +116,15 @@ const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
         type: "select",
         name: "status",
         id: "status",
-        options: ["To Do", "Passed", "Failed", "Skipped"],
+        options: [
+          { label: "To Do", value: "Todo" },
+          { label: "Passed", value: "Passed" },
+          { label: "Failed", value: "Failed" },
+          { label: "Skipped", value: "Skipped" },
+        ],
+        badge: true,
+        placeholder: "Select new status...",
+        styleTarget: "container",
       },
     ],
   },
@@ -371,6 +381,7 @@ export default function TestCaseSection() {
         label: module.name,
       })),
       defaultValue: moduleId || "",
+      asideForm: true,
     },
     { name: "name", label: "Test Case Name", placeholder: "Enter name" },
     {
@@ -382,11 +393,13 @@ export default function TestCaseSection() {
       name: "execution",
       label: "Execution",
       hideInFormRows: true,
+      badge: true,
     },
     {
       name: "status",
       label: "Status",
       hideInFormRows: true,
+      badge: true,
     },
   ];
 

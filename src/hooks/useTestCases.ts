@@ -27,7 +27,6 @@ export function useTestCases(checkedTestCases: number | number[] | undefined) {
 
   const updateTestCasesStatus = useCallback(
     async (newStatus: "To Do" | "Passed" | "Failed" | "Skipped") => {
-      debugger;
       if (idsAsArray.length === 0) {
         console.error("Empty array");
         return;

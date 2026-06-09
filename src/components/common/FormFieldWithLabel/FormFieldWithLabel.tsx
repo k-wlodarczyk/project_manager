@@ -9,10 +9,12 @@ interface FormFieldWithLabelProps {
   name: string;
   value?: string;
   portalContainer?: HTMLElement | null;
-  onValueChange: (newValue: string) => void;
-  onSelectChange: (selectedValue: string) => void;
-
+  options?: any[];
+  onValueChange?: (newValue: string) => void;
+  onSelectChange?: (selectedValue: string) => void;
+  badge?: boolean;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export default function FormFieldWithLabel({
@@ -25,6 +27,9 @@ export default function FormFieldWithLabel({
   onSelectChange,
   onValueChange,
   portalContainer,
+  options,
+  badge,
+  disabled,
   ...props
 }: FormFieldWithLabelProps) {
   return (
@@ -40,7 +45,7 @@ export default function FormFieldWithLabel({
             className={styles.input}
             value={value}
             onChange={(e) =>
-              onValueChange((e.target as HTMLInputElement).value)
+              onValueChange?.((e.target as HTMLInputElement).value)
             }
             {...props}
           />
@@ -49,8 +54,12 @@ export default function FormFieldWithLabel({
           <SelectField
             value={value}
             onSelect={onSelectChange}
-            {...props}
             portalContainer={portalContainer}
+            placeholder={placeholder}
+            options={options}
+            badge={badge}
+            disabled={disabled}
+            {...props}
           />
         )}
       </div>

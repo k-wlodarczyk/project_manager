@@ -9,8 +9,11 @@ textarea {
 }
 
 .testCaseStepsSection {
-  max-height: 45rem;
+  /* max-height: 55%; */
   overflow-y: auto;
+
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 .testCaseStepsItem,

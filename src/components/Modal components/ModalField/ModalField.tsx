@@ -1,6 +1,7 @@
 import styles from "./ModalField.module.css";
 import type { FieldConfig, Option } from "../../../types/modal";
 import clsx from "clsx";
+import FormFieldWithLabel from "../../common/FormFieldWithLabel/FormFieldWithLabel";
 
 interface ModalFieldProps extends FieldConfig {
   value?: string;
@@ -8,8 +9,10 @@ interface ModalFieldProps extends FieldConfig {
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
+  onSelectChange: (newValue: string) => void;
   options?: Option[];
   wholeLine?: boolean;
+  badge?: boolean;
 }
 
 export default function ModalField({
@@ -21,7 +24,9 @@ export default function ModalField({
   disabled,
   options,
   onChange,
+  onSelectChange,
   wholeLine,
+  badge,
 }: ModalFieldProps) {
   const isSelect = type === "select";
 
@@ -32,36 +37,31 @@ export default function ModalField({
         wholeLine && styles.modalFieldWholeLine,
       )}
     >
-      <label htmlFor="">{label}</label>
-
       {isSelect ? (
-        <select
+        <FormFieldWithLabel
+          type="select"
+          id={name}
           name={name}
-          onChange={onChange}
-          disabled={disabled}
+          label={label}
+          onSelectChange={onSelectChange}
+          options={options}
           value={value}
-          className={disabled ? styles.disabledSelect : ""}
-        >
-          <option value="" disabled>
-            Select an option
-          </option>
-          {options &&
-            options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-        </select>
-      ) : (
-        <input
-          name={name}
-          type={type === "select" ? "text" : type}
-          value={value ?? ""}
-          onChange={onChange}
+          badge={badge}
           disabled={disabled}
-          placeholder={placeholder}
-          className={disabled ? styles.disabledInput : ""}
         />
+      ) : (
+        <>
+          <label htmlFor="">{label}</label>
+          <input
+            name={name}
+            type={type === "select" ? "text" : type}
+            value={value ?? ""}
+            onChange={onChange}
+            disabled={disabled}
+            placeholder={placeholder}
+            className={disabled ? styles.disabledInput : ""}
+          />
+        </>
       )}
     </div>
   );

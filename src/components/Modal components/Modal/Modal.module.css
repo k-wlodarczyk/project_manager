@@ -18,7 +18,7 @@
   padding: 2rem;
   border-radius: 1rem;
   width: 70%;
-  height: 95%;
+  max-height: 95vh;
   overflow-y: auto;
 }
 
@@ -31,11 +31,34 @@
   color: #777;
 }
 
+.mainSection {
+  display: grid;
+  grid-template-columns: 80fr 20fr;
+  gap: 2rem;
+  max-height: 70%;
+
+  flex: 1;
+  min-height: 0;
+}
+
+.additionalSection,
 .modalFields {
   margin-top: 3rem;
+}
+
+.additionalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.modalFields {
   display: flex;
   flex-direction: column;
   gap: 1.6rem;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 2.4rem;
 }
 
 .closeBtn {
@@ -49,10 +72,12 @@
 }
 
 .modalFooter {
+  padding: 0 3.2rem;
   margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+  text-align: center;
 }
 
 .modalFooterExecution {
@@ -62,6 +87,7 @@
 }
 
 .modalBtns {
+  justify-self: flex-end;
   display: flex;
   gap: 1.2rem;
 }

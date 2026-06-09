@@ -12,4 +12,6 @@ export interface FieldConfig {
   disabled?: boolean;
   defaultValue?: any;
   hideInFormRows?: boolean;
+  asideForm?: boolean;
+  badge?: boolean;
 }

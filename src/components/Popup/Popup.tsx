@@ -134,6 +134,8 @@ export default function Popup({
                       id={field.id}
                       name={field.name}
                       value={formData[field.name as string] || ""}
+                      options={field.options}
+                      badge={field.badge}
                       onValueChange={(value) =>
                         handleInputChange(field.name, value)
                       }
