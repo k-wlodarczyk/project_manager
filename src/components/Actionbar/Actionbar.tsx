@@ -5,7 +5,7 @@ interface Actionbar {
   onNewTestClick: () => void;
   onNewModuleClick: () => void;
   onDropdownOption: (
-    selectedOption: "changeTestCaseStatus" | "deleteTestCases",
+    selectedOption: "changeTestCaseStatus" | "deleteTestCases" | "exportXlsx",
   ) => void;
   checkedTestCasesCounter: number;
 }
@@ -41,6 +41,15 @@ export default function Actionbar({
               <ion-icon name="folder-outline"></ion-icon>
             </span>
             change module
+          </button>
+          <button
+            className={styles.selectedItemsActionBtn}
+            onClick={() => onDropdownOption("exportXlsx")}
+          >
+            <span className={styles.spanIcon}>
+              <ion-icon name="download-outline"></ion-icon>
+            </span>
+            export to xlsx
           </button>
           <button className={styles.selectedItemsActionBtn}>
             <span className={styles.spanIcon}>

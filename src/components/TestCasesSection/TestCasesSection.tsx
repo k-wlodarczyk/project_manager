@@ -226,7 +226,7 @@ export default function TestCaseSection() {
     "view",
   );
 
-  const { deleteTestCases, updateTestCasesStatus } =
+  const { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx } =
     useTestCases(checkedTestCases);
 
   const { submitModules, updateModule, deleteModule } = useModalSubmit({
@@ -428,12 +428,16 @@ export default function TestCaseSection() {
     setIsDropdownOpen(false);
   }
 
-  function handleSelectDropdownOption(
-    option: "changeTestCaseStatus" | "deleteTestCases",
+  async function handleSelectDropdownOption(
+    option: "changeTestCaseStatus" | "deleteTestCases" | "exportXlsx",
   ) {
-    setSelectedDropdownOption(option);
-    setPopupAction(option);
-    setIsPopupOpen(true);
+    if (option === "changeTestCaseStatus" || option === "deleteTestCases") {
+      setSelectedDropdownOption(option);
+      setPopupAction(option);
+      setIsPopupOpen(true);
+    } else if (option === "exportXlsx") {
+      await exportTestCasesToXlsx();
+    }
   }
 
   async function handleSubmitPopup(selectedOption?: any, formData?: any) {
