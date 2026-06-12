@@ -1,6 +1,6 @@
 import styles from "./Dashboard.module.css";
 
-import TestCaseSection from "../TestCasesSection/TestCasesSection";
+import TestCaseSection from "../Test cases section components/TestCasesSection/TestCasesSection";
 import Sidebar from "../Sidebar components/Sidebar/Sidebar";
 
 import Header from "../Header/Header";

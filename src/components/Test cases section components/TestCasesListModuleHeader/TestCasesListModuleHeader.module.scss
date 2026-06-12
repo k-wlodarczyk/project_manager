@@ -1,0 +1,14 @@
+.moduleHeader {
+  display: grid;
+  padding: 0.9rem 1.2rem;
+  gap: 1.2rem;
+  grid-template-columns: 1fr 16fr;
+  align-items: center;
+  background-color: #ddd;
+
+  label {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+  }
+}

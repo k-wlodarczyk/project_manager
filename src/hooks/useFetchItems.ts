@@ -45,6 +45,8 @@ export function useFetchItems(
           } else if (projectId) {
             query = query.eq("project_id", projectId);
           }
+        } else {
+          query = query.eq("project_id", projectId);
         }
       }
 

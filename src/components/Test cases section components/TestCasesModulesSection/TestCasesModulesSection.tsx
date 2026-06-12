@@ -1,6 +1,6 @@
 import styles from "./TestCasesModulesSection.module.css";
 import { useMemo } from "react";
-import TestCasesModulesElement from "../TestCasesModulesElement/TestCasesModulesElement";
+import TestCasesModulesElement from "../TestCasesListHeader/TestCasesModulesElement/TestCasesModulesElement";
 
 interface TestCasesModulesSectionProps {
   modules: any[];

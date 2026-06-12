@@ -1,165 +1,19 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
-import Modal from "../Modal components/Modal/Modal";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import Modal from "../../Modal components/Modal/Modal";
 import { useParams } from "react-router-dom";
-import { useFetchItems } from "../../hooks/useFetchItems";
+import { useFetchItems } from "../../../hooks/useFetchItems";
 import styles from "./TestCasesSection.module.css";
-import { useTestCases } from "../../hooks/useTestCases";
+import { useTestCases } from "../../../hooks/useTestCases";
 import { useOnClickOutside } from "usehooks-ts";
-import { Link, useNavigate } from "react-router-dom";
-import clsx from "clsx";
-import Popup from "../Popup/Popup";
+import { useNavigate } from "react-router-dom";
+
+import Popup from "../../Popup/Popup";
+import { POPUP_CONFIG } from "./TestCasesSection.popupConfig";
+import { MODAL_CONFIG } from "./TestCasesSection.modalConfig";
 import TestCasesModulesSection from "../TestCasesModulesSection/TestCasesModulesSection";
-import { useModalSubmit } from "../../hooks/useModalSubmit";
+import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import Actionbar from "../Actionbar/Actionbar";
-
-type PopupAction =
-  | "newModule"
-  | "editModule"
-  | "deleteModule"
-  | "deleteTestCases"
-  | "changeTestCaseStatus";
-
-type PopupField = {
-  name: string;
-  label: string;
-  id?: string;
-  type: "input" | "select";
-  placeholder?: string;
-  options?: any[];
-  badge?: boolean;
-  styleTarget?: "container" | "text";
-};
-
-interface PopupSetting {
-  title: string;
-  subtitle: string | ((param: string | number) => ReactNode);
-  confirmLabel: string;
-  cancelLabel: string;
-  type: "edit" | "confirmDelete";
-  fields?: PopupField[];
-}
-
-const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
-  newModule: {
-    title: "New Module",
-    subtitle: "",
-    confirmLabel: "Create",
-    cancelLabel: "Cancel",
-    type: "edit",
-    fields: [
-      {
-        label: "Module Name",
-        type: "input",
-        name: "moduleName",
-        id: "moduleName",
-        placeholder: "Insert new module name...",
-      },
-    ],
-  },
-
-  editModule: {
-    title: "Edit Module",
-    subtitle: "",
-    confirmLabel: "Save",
-    cancelLabel: "Cancel",
-    type: "edit",
-    fields: [
-      {
-        label: "Module Name",
-        type: "input",
-        name: "moduleName",
-        id: "moduleName",
-        placeholder: "Insert new module name...",
-      },
-    ],
-  },
-  deleteModule: {
-    title: "Delete module",
-    subtitle: (moduleName: string | number) => (
-      <>
-        Are you sure you want to delete module <strong>{moduleName}</strong>?
-        This action cannot be undone.
-      </>
-    ),
-    confirmLabel: "Yes, delete",
-    cancelLabel: "Cancel",
-    type: "confirmDelete",
-  },
-  deleteTestCases: {
-    title: "Delete test cases",
-    subtitle: (checkedTestCasesCounter: string | number) => (
-      <>
-        Are you sure you want to delete{" "}
-        <strong>{checkedTestCasesCounter}</strong> test cases? This action
-        cannot be undone.
-      </>
-    ),
-    confirmLabel: "Yes, delete",
-    cancelLabel: "Cancel",
-    type: "confirmDelete",
-  },
-  changeTestCaseStatus: {
-    title: "Edit Test cases status",
-    subtitle: "",
-    confirmLabel: "Save",
-    cancelLabel: "Cancel",
-    type: "edit",
-    fields: [
-      {
-        label: "Status",
-        type: "select",
-        name: "status",
-        id: "status",
-        options: [
-          { label: "To Do", value: "Todo" },
-          { label: "Passed", value: "Passed" },
-          { label: "Failed", value: "Failed" },
-          { label: "Skipped", value: "Skipped" },
-        ],
-        badge: true,
-        placeholder: "Select new status...",
-        styleTarget: "container",
-      },
-    ],
-  },
-};
-
-const MODAL_CONFIG = {
-  view: {
-    title: "View test case",
-    subtitle: "",
-  },
-  create: {
-    title: "New test case",
-    subtitle: "Add test case",
-  },
-  edit: {
-    title: "Edit test case",
-    subtitle: "",
-  },
-  copy: {
-    title: "Copy test case",
-    subtitle: "",
-  },
-};
-
-const testCaseStatusCss = {
-  "To Do": "todo",
-  Passed: "passed",
-  Failed: "failed",
-  Skipped: "skipped",
-};
-
-const testCaseExecutionCss = {
-  Manual: "manual",
-  Automated: "automated",
-};
+import TestCasesList from "../TestCasesList/TestCasesList";
 
 export default function TestCaseSection() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -248,11 +102,6 @@ export default function TestCaseSection() {
   useEffect(() => {
     refresh();
   }, [moduleId, refresh]);
-
-  function showViewTestCaseModal(id: number) {
-    setSelectedTestCaseId(id);
-    setIsModalOpen(true);
-  }
 
   function showCreateTestCaseModal() {
     setModalType("testCases");
@@ -547,204 +396,16 @@ export default function TestCaseSection() {
       }
 
       <div className={styles.list}>
-        <div className={styles.listHeader}>
-          <label htmlFor="">
-            <input
-              type="checkbox"
-              name=""
-              id=""
-              checked={
-                testCases && orderedTestCases.length > 0
-                  ? orderedTestCases.every((tc: any) =>
-                      checkedTestCases.includes(tc.id),
-                    )
-                  : false
-              }
-              onChange={handleGlobalChecked}
-            />
-          </label>
-          <div>Test Case Name</div>
-          <div>Last Result</div>
-          <div>Execution</div>
-          <div>Last Execution Date</div>
-        </div>
-        {!moduleId &&
-          !isLoading &&
-          modules?.map((module: any) => {
-            const hasModuleTestCases = testCases.some(
-              (tc: any) => tc.module_id === module.id,
-            );
-
-            return (
-              hasModuleTestCases && (
-                <div key={module.id}>
-                  <div className={styles.moduleHeader}>
-                    <label htmlFor={`check-${module.id}`}>
-                      <input
-                        type="checkbox"
-                        name=""
-                        id={`check-${module.id}`}
-                        checked={
-                          isLoading
-                            ? false
-                            : testCases && testCases.length > 0
-                              ? testCases
-                                  .filter(
-                                    (tc: any) => tc.module_id === module.id,
-                                  )
-                                  .every((tc: any) =>
-                                    checkedTestCases.includes(tc.id),
-                                  )
-                              : false
-                        }
-                        onChange={() => handleModuleChecked(module.id)}
-                      />
-                    </label>
-                    <div className={styles.moduleName}>
-                      MODULE: {module.name}
-                    </div>
-                  </div>
-                  {testCases
-                    ?.filter(
-                      (testCase: any) => testCase.module_id === module.id,
-                    )
-                    .map((filtered: any) => (
-                      <Link
-                        to={`/project/${projectId}/testCase/${filtered.id}`}
-                        className={clsx(styles.testCaseLink)}
-                      >
-                        <div
-                          className={clsx(
-                            styles.listItem,
-                            isModalOpen &&
-                              selectedTestCaseId === filtered.id &&
-                              styles.selectedItem,
-                          )}
-                          onClick={() => showViewTestCaseModal(filtered.id)}
-                        >
-                          <label
-                            htmlFor="testCaseCheck"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <input
-                              type="checkbox"
-                              name="testCaseCheck"
-                              id={`check-${filtered.id}`}
-                              checked={checkedTestCases.includes(filtered.id)}
-                              onChange={(e) =>
-                                handleCheckboxClick(e, filtered.id)
-                              }
-                            />
-                          </label>
-
-                          <div className={styles.testCaseName}>
-                            {filtered.name}
-                          </div>
-                          <div
-                            className={clsx(
-                              styles.status,
-                              styles[
-                                testCaseStatusCss[
-                                  filtered.status as keyof typeof testCaseStatusCss
-                                ] as any
-                              ],
-                            )}
-                          >
-                            {filtered.status}
-                          </div>
-                          <div
-                            className={clsx(
-                              styles.execution,
-                              styles[
-                                testCaseExecutionCss[
-                                  filtered.execution as keyof typeof testCaseExecutionCss
-                                ] as any
-                              ],
-                            )}
-                          >
-                            {filtered.execution}
-                          </div>
-                          <div>2026-04-12</div>
-                        </div>
-                      </Link>
-                    ))}
-                </div>
-              )
-            );
-          })}
-
-        {moduleId && (
-          <div>
-            {testCases
-              ?.filter((testCase: any) => {
-                const matchProject = projectId
-                  ? testCase.project_id === +projectId
-                  : true;
-
-                const matchModule = testCase.module_id === +moduleId;
-
-                return matchProject && matchModule;
-              })
-              .map((testCase: any) => (
-                <Link
-                  key={testCase.id}
-                  to={`/project/${projectId}/module/${moduleId}/testCase/${testCase.id}`}
-                  className={clsx(
-                    styles.testCaseLink,
-                    isModalOpen &&
-                      selectedTestCaseId === testCase.id &&
-                      styles.selectedItem,
-                  )}
-                >
-                  <div
-                    className={styles.listItem}
-                    onClick={() => showViewTestCaseModal(testCase.id)}
-                  >
-                    <label
-                      htmlFor={`check-${testCase.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        name="testCaseCheck"
-                        checked={checkedTestCases.includes(testCase.id)}
-                        id={`check-${testCase.id}`}
-                        onChange={(e) => handleCheckboxClick(e, testCase.id)}
-                      />
-                    </label>
-
-                    <div className={styles.testCaseName}>{testCase.name}</div>
-
-                    <div
-                      className={clsx(
-                        styles.status,
-                        styles[
-                          testCaseStatusCss[
-                            testCase.status as keyof typeof testCaseStatusCss
-                          ] as any
-                        ],
-                      )}
-                    >
-                      {testCase.status}
-                    </div>
-                    <div
-                      className={clsx(
-                        styles.execution,
-                        styles[
-                          testCaseExecutionCss[
-                            testCase.execution as keyof typeof testCaseExecutionCss
-                          ] as any
-                        ],
-                      )}
-                    >
-                      {testCase.execution}
-                    </div>
-                    <div>2026-04-10</div>
-                  </div>
-                </Link>
-              ))}
-          </div>
-        )}
+        <TestCasesList
+          activeModuleId={moduleId}
+          activeProjectId={projectId}
+          testCases={testCases}
+          checkedTestCases={checkedTestCases}
+          onCheckboxChange={handleCheckboxClick}
+          onGlobalChecked={handleGlobalChecked}
+          onModuleChecked={handleModuleChecked}
+          modules={modules}
+        />
       </div>
 
       {isModalOpen && modalType === "testCases" && (
