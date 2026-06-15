@@ -1,6 +1,7 @@
 import styles from "./TestCasesModulesSection.module.css";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TestCasesModulesElement from "../TestCasesListHeader/TestCasesModulesElement/TestCasesModulesElement";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface TestCasesModulesSectionProps {
   modules: any[];
@@ -9,6 +10,7 @@ interface TestCasesModulesSectionProps {
   projectId: string | undefined;
   selectedModuleId?: number;
   onModuleActionSelect: () => void;
+  onModulesReorder: (updatedModules: any[]) => void;
 }
 
 export default function TestCasesModulesSection({
@@ -18,8 +20,17 @@ export default function TestCasesModulesSection({
   projectId,
   selectedModuleId,
   onModuleActionSelect,
+  onModulesReorder,
 }: TestCasesModulesSectionProps) {
   if (!projectId) return <></>;
+
+  const [fetchedModules, setFetchedModules] = useState(modules || []);
+
+  useEffect(() => {
+    if (modules) {
+      setFetchedModules(modules);
+    }
+  }, [modules]);
 
   const testCasesStats = useMemo(() => {
     type StatCounters = {
@@ -80,38 +91,89 @@ export default function TestCasesModulesSection({
     };
   }, [testCases, projectId]);
 
+  const reorder = (list: any[], startIndex: number, endIndex: number) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  function onDragEnd(result: any) {
+    if (result.destination) {
+      console.log("sth work");
+    }
+
+    const reorderedModules = reorder(
+      fetchedModules,
+      result.source.index,
+      result.destination.index,
+    );
+
+    const updatedModulesOrder = reorderedModules.map((module, idx) => ({
+      ...module,
+      order: idx,
+    }));
+
+    setFetchedModules(updatedModulesOrder);
+
+    onModulesReorder(updatedModulesOrder);
+  }
+
   return (
     <>
       {projectId && (
-        <div className={styles.moduleContainers}>
-          <TestCasesModulesElement
-            selectedModuleId={selectedModuleId}
-            statusCounter={testCasesStats.projectStats}
-            onClick={onClick}
-            onModuleActionSelect={onModuleActionSelect}
-          />
-
-          {modules?.map((module: any) => {
-            const moduleStats = testCasesStats.modulesStats[module.id] || {
-              total: 0,
-              passed: 0,
-              failed: 0,
-              skipped: 0,
-              toDo: 0,
-            };
-
-            return (
-              <TestCasesModulesElement
-                selectedModuleId={selectedModuleId}
-                moduleName={module.name}
-                moduleId={module.id}
-                statusCounter={moduleStats}
-                onClick={onClick}
-                onModuleActionSelect={onModuleActionSelect}
-              />
-            );
-          })}
-        </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable" direction="horizontal">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={styles.moduleContainers}
+              >
+                <TestCasesModulesElement
+                  selectedModuleId={selectedModuleId}
+                  statusCounter={testCasesStats.projectStats}
+                  onClick={onClick}
+                  onModuleActionSelect={onModuleActionSelect}
+                />
+                {fetchedModules.map((module: any, index: number) => {
+                  const moduleStats = testCasesStats.modulesStats[
+                    module.id
+                  ] || {
+                    total: 0,
+                    passed: 0,
+                    failed: 0,
+                    skipped: 0,
+                    toDo: 0,
+                  };
+                  return (
+                    <Draggable
+                      key={module.id.toString()}
+                      draggableId={module.id.toString()}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <TestCasesModulesElement
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          dragHandleProps={provided.dragHandleProps}
+                          selectedModuleId={selectedModuleId}
+                          moduleName={module.name}
+                          moduleId={module.id}
+                          statusCounter={moduleStats}
+                          onClick={onClick}
+                          onModuleActionSelect={onModuleActionSelect}
+                        />
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </>
   );

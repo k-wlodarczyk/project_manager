@@ -57,6 +57,7 @@ export default function TestCasesList({
                   <TestCaseListItem
                     key={tc.id}
                     testCase={tc}
+                    activeModuleId={activeModuleId}
                     activeProjectId={activeProjectId}
                     checkedTestCases={checkedTestCases}
                     onCheckboxChange={onCheckboxChange}
@@ -74,6 +75,7 @@ export default function TestCasesList({
               <TestCaseListItem
                 key={moduleTc.id}
                 testCase={moduleTc}
+                activeModuleId={activeModuleId}
                 activeProjectId={activeProjectId}
                 checkedTestCases={checkedTestCases}
                 onCheckboxChange={onCheckboxChange}

@@ -34,6 +34,19 @@ export function useModalSubmit({
   const updateProject = async (_formData: any) => {};
 
   const submitModules = async (formData: any) => {
+    const { data: highestOrderModule, error: fetchError } = await supabase
+      .from("modules")
+      .select("order")
+      .eq("project_id", projectId)
+      .order("order", { ascending: false })
+      .limit(1);
+
+    if (fetchError) {
+      return console.error("Error fetching order:", fetchError);
+    }
+
+    const nextOrder = highestOrderModule ? highestOrderModule[0].order : 0;
+
     const { data, error } = await supabase
       .from("modules")
       .insert([
@@ -41,6 +54,7 @@ export function useModalSubmit({
           name: formData.moduleName,
           description: formData.description,
           project_id: projectId,
+          order: nextOrder,
         },
       ])
       .select();

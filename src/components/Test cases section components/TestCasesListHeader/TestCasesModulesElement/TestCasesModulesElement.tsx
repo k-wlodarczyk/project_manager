@@ -1,16 +1,20 @@
 import clsx from "clsx";
 import styles from "./TestCasesModulesElement.module.css";
 import { DropdownMenu } from "radix-ui";
+import type { Ref } from "react";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 
 interface TestCasesModulesElementProps {
   onClick: (id: number | undefined) => void;
-  statusCounter: {
+  statusCounter?: {
     total: number;
     passed: number;
     failed: number;
     skipped: number;
     toDo: number;
   };
+  ref?: Ref<HTMLInputElement>;
+  dragHandleProps?: any;
   selectedModuleId?: number;
   moduleName?: string;
   moduleId?: number;
@@ -28,6 +32,9 @@ export default function TestCasesModulesElement({
   statusCounter,
   onClick,
   onModuleActionSelect,
+  ref,
+  dragHandleProps,
+  ...draggableProps
 }: TestCasesModulesElementProps) {
   function handleOptionSelect(
     moduleName: string,
@@ -39,6 +46,8 @@ export default function TestCasesModulesElement({
 
   return (
     <div
+      ref={ref}
+      {...draggableProps}
       className={clsx(
         !moduleId && styles.projectContainer,
         moduleId && styles.moduleContainer,
@@ -47,11 +56,18 @@ export default function TestCasesModulesElement({
       )}
       onClick={() => onClick(moduleId)}
     >
-      <div className={styles.mainContent}>
-        <p className={styles.moduleName}>{moduleName || "All test cases"}</p>
-        <p className={styles.testCasesCounter}>
-          <strong>{statusCounter.total}</strong>
-        </p>
+      <div className={styles.mainContentSection}>
+        <div className={styles.mainContent}>
+          <p className={styles.moduleName}>{moduleName || "All test cases"}</p>
+          <p className={styles.testCasesCounter}>
+            <strong>{statusCounter?.total}</strong>
+          </p>
+          {moduleId && (
+            <button className={styles.btnDrag} {...dragHandleProps}>
+              <DragHandleDots2Icon />
+            </button>
+          )}
+        </div>
       </div>
 
       <DropdownMenu.Root>
@@ -111,25 +127,25 @@ export default function TestCasesModulesElement({
           <span className={styles.statusIcon}>
             <ion-icon name="checkmark-circle-outline"></ion-icon>
           </span>
-          {statusCounter.passed}
+          {statusCounter?.passed}
         </div>
         <div className={clsx(styles.statusElement, styles.statusFailed)}>
           <span className={styles.statusIcon}>
             <ion-icon name="close-circle-outline"></ion-icon>
           </span>
-          {statusCounter.failed}
+          {statusCounter?.failed}
         </div>
         <div className={clsx(styles.statusElement, styles.statusSkipped)}>
           <span className={styles.statusIcon}>
             <ion-icon name="ban-outline"></ion-icon>
           </span>
-          {statusCounter.skipped}
+          {statusCounter?.skipped}
         </div>
         <div className={clsx(styles.statusElement, styles.statusToDo)}>
           <span className={styles.statusIcon}>
             <ion-icon name="clipboard-outline"></ion-icon>
           </span>
-          {statusCounter.toDo}
+          {statusCounter?.toDo}
         </div>
       </div>
     </div>

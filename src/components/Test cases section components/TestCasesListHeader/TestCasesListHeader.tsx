@@ -15,7 +15,7 @@ export default function TestCasesListHeader({
 }: TestCasesListHeaderProps) {
   const shouldBeChecked = () => {
     testCases = activeModuleId
-      ? testCases.filter((tc: any) => tc.id === +activeModuleId)
+      ? testCases?.filter((tc: any) => tc.id === +activeModuleId)
       : testCases;
 
     return (

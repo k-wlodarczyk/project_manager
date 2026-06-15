@@ -14,8 +14,9 @@ import TestCasesModulesSection from "../TestCasesModulesSection/TestCasesModules
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import Actionbar from "../Actionbar/Actionbar";
 import TestCasesList from "../TestCasesList/TestCasesList";
+import { supabase } from "../../../supabaseClient";
 
-export default function TestCaseSection() {
+export default function TestCasesSection() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [_isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
@@ -75,10 +76,18 @@ export default function TestCaseSection() {
     isLoading,
     refresh,
   } = useFetchItems("test_cases", "view", undefined, "all");
-  const { data: modules, refresh: refreshModules } = useFetchItems(
+  const { data: fetchedModules, refresh: refreshModules } = useFetchItems(
     "modules",
     "view",
   );
+
+  const [modules, setModules] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (fetchedModules) {
+      setModules(fetchedModules);
+    }
+  }, [fetchedModules]);
 
   const { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx } =
     useTestCases(checkedTestCases);
@@ -141,6 +150,22 @@ export default function TestCaseSection() {
 
       return nextState;
     });
+  }
+
+  async function handleModuleReorder(updatedModules: any[]) {
+    setModules(updatedModules);
+
+    const payload = updatedModules.map((module: any) => ({
+      ...module,
+      project_id: Number(projectId),
+      order: module.order,
+    }));
+
+    const { error } = await supabase
+      .from("modules")
+      .upsert(payload, { onConflict: "id" });
+
+    if (error) console.error("something went wrong");
   }
 
   function handleSelectModule(id: number | undefined) {
@@ -384,6 +409,7 @@ export default function TestCaseSection() {
         onClick={handleSelectModule}
         projectId={projectId}
         selectedModuleId={selectedModuleId}
+        onModulesReorder={handleModuleReorder}
         onModuleActionSelect={handleModuleAction}
       />
       {
