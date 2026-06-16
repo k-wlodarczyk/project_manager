@@ -3,14 +3,3 @@
   padding: 0 2.4rem;
   min-width: 0;
 }
-
-.list {
-  margin: 2.4rem;
-  display: flex;
-  flex-direction: column;
-  font-size: 1.4rem;
-  border: var(--containerBorderNavy);
-  border-radius: 4px;
-  max-height: 80vh;
-  overflow-y: auto;
-}

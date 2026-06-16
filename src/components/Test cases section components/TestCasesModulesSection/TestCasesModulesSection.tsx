@@ -100,8 +100,12 @@ export default function TestCasesModulesSection({
   };
 
   function onDragEnd(result: any) {
-    if (result.destination) {
-      console.log("sth work");
+    if (!result.destination) return;
+    if (
+      result.destination.droppableId === result.source.droppableId &&
+      result.destination.index === result.source.index
+    ) {
+      return;
     }
 
     const reorderedModules = reorder(

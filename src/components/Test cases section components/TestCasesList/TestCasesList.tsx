@@ -2,6 +2,7 @@ import TestCasesModuleHeader from "../TestCasesListModuleHeader/TestCasesListMod
 import type { ChangeEvent } from "react";
 import TestCaseListItem from "../TestCaseListItem/TestCaseListItem";
 import TestCasesListHeader from "../TestCasesListHeader/TestCasesListHeader";
+import styles from "./TestCasesList.module.scss";
 
 interface TestCasesListProps {
   activeModuleId?: string;
@@ -36,7 +37,7 @@ export default function TestCasesList({
         checkedTestCases={checkedTestCases}
       />
       {!activeModuleId ? (
-        <>
+        <div className={styles.listContent}>
           {modules?.map((module: any) => {
             const moduleTestCases =
               testCases?.filter((tc: any) => tc.module_id === module.id) || [];
@@ -66,9 +67,9 @@ export default function TestCasesList({
               </div>
             );
           })}
-        </>
+        </div>
       ) : (
-        <>
+        <div className={styles.listContent}>
           {testCases
             ?.filter((testCase: any) => testCase.module_id === +activeModuleId)
             .map((moduleTc: any) => (
@@ -81,7 +82,7 @@ export default function TestCasesList({
                 onCheckboxChange={onCheckboxChange}
               />
             ))}
-        </>
+        </div>
       )}
     </>
   );

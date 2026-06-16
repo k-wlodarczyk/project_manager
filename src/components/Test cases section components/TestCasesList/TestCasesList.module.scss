@@ -1,1 +1,11 @@
-
+.listContent {
+  margin: 2.4rem;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.4rem;
+  border: var(--containerBorderNavy);
+  border-radius: 0 0 6px 6px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
