@@ -2,12 +2,15 @@ import { Link } from "react-router-dom";
 import styles from "./TestCaseListItem.module.scss";
 import clsx from "clsx";
 import { useMemo, type ChangeEvent } from "react";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 
 interface TestCaseListItemProps {
   testCase: any;
   activeModuleId?: string;
   activeProjectId?: string;
   checkedTestCases: number[];
+  ref?: any;
+  dragHandleProps?: any;
   onCheckboxChange: (
     e: ChangeEvent<HTMLInputElement, HTMLInputElement>,
     id: number,
@@ -32,6 +35,9 @@ export default function TestCaseListItem({
   activeProjectId,
   checkedTestCases,
   onCheckboxChange,
+  ref,
+  dragHandleProps,
+  ...draggableProps
 }: TestCaseListItemProps) {
   const linkPath = useMemo(() => {
     return activeModuleId
@@ -40,9 +46,12 @@ export default function TestCaseListItem({
   }, [activeModuleId, activeProjectId, testCase.id]);
 
   return (
-    <div>
-      <Link to={linkPath} className={styles.testCaseLink}>
-        <div className={styles.listItem}>
+    <div ref={ref} {...draggableProps}>
+      <div className={styles.listItem}>
+        <div className={styles.btnDrag} {...dragHandleProps}>
+          <DragHandleDots2Icon />
+        </div>
+        <div className={styles.labelSection}>
           <label
             htmlFor={`check-${testCase.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -55,7 +64,11 @@ export default function TestCaseListItem({
               onChange={(e) => onCheckboxChange(e, testCase.id)}
             />
           </label>
+        </div>
+
+        <Link to={linkPath} className={styles.testCaseLink}>
           <div className={styles.testCaseName}>{testCase.name}</div>
+
           <div
             className={clsx(
               styles.status,
@@ -81,8 +94,8 @@ export default function TestCaseListItem({
             {testCase.execution}
           </div>
           <div>2026-04-12</div>
-        </div>
-      </Link>
+        </Link>
+      </div>
     </div>
   );
 }

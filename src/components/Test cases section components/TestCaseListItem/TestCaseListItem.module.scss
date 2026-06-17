@@ -1,28 +1,56 @@
-.testCaseLink {
-  color: inherit;
-  text-decoration: none;
-  display: block;
-}
-
 .listItem {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr 10fr 2fr 2fr 2fr;
+  grid-template-columns: 1fr 16fr;
   align-items: center;
   text-align: center;
-  padding: 0.9rem 1.2rem;
+  padding: 0 1.2rem;
   gap: 1.2rem;
   background-color: #fff;
   transition: 0.4s ease all;
 
-  label {
-    display: flex;
-    justify-content: center;
-    align-items: start;
+  .testCaseLink {
+    display: grid;
+    grid-template-columns: 5fr 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0.9rem 0;
+    color: inherit;
+    text-decoration: none;
+    height: 100%;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .labelSection {
+    height: 100%;
+
+    label {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .btnDrag {
+    display: none;
+    text-align: center;
   }
 
   &:hover {
     background-color: var(--containerBgNavy);
-    cursor: pointer;
+
+    .btnDrag {
+      display: block;
+      position: absolute;
+      cursor: grab;
+      left: 1%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
   }
 
   .testCaseName,

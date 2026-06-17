@@ -72,7 +72,7 @@ export default function TestCasesSection() {
   }, [moduleId, projectId]);
 
   const {
-    data: testCases,
+    data: fetchedTestCases,
     isLoading,
     refresh,
   } = useFetchItems("test_cases", "view", undefined, "all");
@@ -81,13 +81,18 @@ export default function TestCasesSection() {
     "view",
   );
 
+  const [testCases, setTestCases] = useState<any[]>([]);
   const [modules, setModules] = useState<any[]>([]);
 
   useEffect(() => {
     if (fetchedModules) {
       setModules(fetchedModules);
     }
-  }, [fetchedModules]);
+
+    if (fetchedTestCases) {
+      setTestCases(fetchedTestCases);
+    }
+  }, [fetchedModules, fetchedTestCases]);
 
   const { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx } =
     useTestCases(checkedTestCases);
@@ -166,6 +171,30 @@ export default function TestCasesSection() {
       .upsert(payload, { onConflict: "id" });
 
     if (error) console.error("something went wrong");
+  }
+
+  async function handleTestCasesReorder(updatedTestCases: any[]) {
+    setTestCases([...updatedTestCases]);
+
+    const payload = updatedTestCases.map((tc: any) => ({
+      ...tc,
+      project_id: Number(projectId),
+      module_id: Number(tc.module_id),
+      order_in_module: tc.order_in_module,
+    }));
+
+    const { error } = await supabase
+      .from("test_cases")
+      .upsert(payload, { onConflict: "id" });
+
+    if (error) {
+      console.error(
+        "something went wrong with test cases reorder:",
+        error.message,
+      );
+    }
+
+    refresh();
   }
 
   function handleSelectModule(id: number | undefined) {
@@ -431,6 +460,7 @@ export default function TestCasesSection() {
           onGlobalChecked={handleGlobalChecked}
           onModuleChecked={handleModuleChecked}
           modules={modules}
+          onTestCasesReorder={handleTestCasesReorder}
         />
       </div>
 

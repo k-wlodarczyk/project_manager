@@ -5,7 +5,8 @@ import { useParams } from "react-router-dom";
 const SELECT_FIELDS = {
   projects: "id, name",
   modules: "id, name, order",
-  test_cases: "id, name, module_id, project_id, description, status, execution",
+  test_cases:
+    "id, name, module_id, project_id, description, status, execution, order_in_module",
   test_case_steps: "id, action, input_data, expected_result",
 };
 
@@ -57,6 +58,10 @@ export function useFetchItems(
 
     if (type === "modules") {
       query = query.order("order", { ascending: true });
+    } else if (type === "test_cases") {
+      query = query
+        .order("module_id", { ascending: true })
+        .order("order_in_module", { ascending: true });
     } else {
       query = query.order("id", { ascending: true });
     }

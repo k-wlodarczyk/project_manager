@@ -63,9 +63,9 @@ export default function TestCasesModulesElement({
             <strong>{statusCounter?.total}</strong>
           </p>
           {moduleId && (
-            <button className={styles.btnDrag} {...dragHandleProps}>
+            <div className={styles.btnDrag} {...dragHandleProps}>
               <DragHandleDots2Icon />
-            </button>
+            </div>
           )}
         </div>
       </div>

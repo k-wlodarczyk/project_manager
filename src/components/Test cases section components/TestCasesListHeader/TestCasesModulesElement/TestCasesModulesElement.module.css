@@ -60,8 +60,8 @@
   position: absolute;
   cursor: grab;
   font-size: 1.8rem;
-  right: 0%;
-  bottom: 0%;
+  right: 7%;
+  bottom: 7%;
 }
 
 .testCasesCounter {

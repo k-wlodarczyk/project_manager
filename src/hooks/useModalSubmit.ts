@@ -45,7 +45,10 @@ export function useModalSubmit({
       return console.error("Error fetching order:", fetchError);
     }
 
-    const nextOrder = highestOrderModule ? highestOrderModule[0].order : 0;
+    const nextOrder =
+      highestOrderModule && highestOrderModule.length > 0
+        ? (highestOrderModule[0].order ?? -1) + 1
+        : 0;
 
     const { data, error } = await supabase
       .from("modules")
@@ -93,6 +96,26 @@ export function useModalSubmit({
   };
 
   const submitTestCases = async (formData: any, steps: any[]) => {
+    const { data: highestOrderTestCase, error: fetchError } = await supabase
+      .from("test_cases")
+      .select("order_in_module")
+      .eq("project_id", projectId)
+      .eq("module_id", formData.module_id)
+      .order("order_in_module", { ascending: false })
+      .limit(1);
+
+    if (fetchError) {
+      return console.error(
+        "Error fetching highest test case order:",
+        fetchError,
+      );
+    }
+
+    const nextOrder =
+      highestOrderTestCase && highestOrderTestCase.length > 0
+        ? (highestOrderTestCase[0].order_in_module ?? -1) + 1
+        : 0;
+
     const { data: testCase, error } = await supabase
       .from("test_cases")
       .insert([
@@ -103,6 +126,7 @@ export function useModalSubmit({
           module_id: formData.module_id,
           status: formData.status,
           execution: formData.execution,
+          order_in_module: nextOrder,
         },
       ])
       .select()
