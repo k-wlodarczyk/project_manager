@@ -110,9 +110,9 @@ export default function TestCasesSection() {
 
   const { title, subtitle } = MODAL_CONFIG[modalMode];
 
-  const projectId = fetchedProjects?.map(
+  const projectId = fetchedProjects?.find(
     (project: any) => project.slug === projectSlug,
-  ).id;
+  )?.id;
 
   useEffect(() => {
     refresh();
@@ -182,7 +182,9 @@ export default function TestCasesSection() {
     setTestCases([...updatedTestCases]);
 
     const payload = updatedTestCases.map((tc: any) => ({
-      ...tc,
+      id: tc.id,
+      name: tc.name,
+      status: tc.status,
       project_id: Number(projectId),
       module_id: Number(tc.module_id),
       order_in_module: tc.order_in_module,
