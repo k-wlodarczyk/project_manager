@@ -60,9 +60,10 @@ export default function TestCasesList({
       order_in_module: idx,
     }));
 
+    const updatedIds = new Set(updatedModuleTestCases.map((tc) => tc.id));
+
     const otherModulesTestCases = testCases.filter(
-      (globalTc: any) =>
-        globalTc.module_id !== Number(result.source.droppableId),
+      (globalTc: any) => !updatedIds.has(globalTc.id),
     );
 
     const finalAllTestCases = [

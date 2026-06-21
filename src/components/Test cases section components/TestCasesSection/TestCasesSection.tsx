@@ -166,7 +166,8 @@ export default function TestCasesSection() {
     setModules(updatedModules);
 
     const payload = updatedModules.map((module: any) => ({
-      ...module,
+      id: module.id,
+      name: module.name,
       project_id: Number(projectId),
       order: module.order,
     }));
