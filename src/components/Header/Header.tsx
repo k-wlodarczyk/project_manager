@@ -1,9 +1,8 @@
-import * as Select from "@radix-ui/react-select";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchItems } from "../../hooks/useFetchItems";
 import styles from "./Header.module.css";
 import { useEffect, useState } from "react";
+import SelectField from "../common/Select/SelectField";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -11,56 +10,77 @@ interface HeaderProps {
 
 export default function Header({ children }: HeaderProps) {
   const navigate = useNavigate();
-  const { data: projects, isLoading } = useFetchItems("projects", "view");
-  const { projectId } = useParams();
-  const [selectedProjectId, setSelectedProjectId] = useState<
+  const { data: teams } = useFetchItems("teams", "view");
+  const { data: projects } = useFetchItems("projects", "view");
+  const { projectSlug, teamSlug } = useParams();
+  const [selectedTeam, setSelectedTeam] = useState<string | undefined>(
+    undefined,
+  );
+  const [selectedProjectSlug, setSelectedProjectSlug] = useState<
     string | undefined
   >(undefined);
 
   useEffect(() => {
-    if (projectId) {
-      setSelectedProjectId(projectId);
+    setSelectedProjectSlug(projectSlug || undefined);
+
+    if (teamSlug) {
+      setSelectedTeam(teamSlug);
     }
-  }, [projectId]);
+  }, [teamSlug, projectSlug]);
 
   const handleProjectChange = (projectId: string) => {
-    setSelectedProjectId(projectId);
-    if (projectId) {
-      navigate(`/project/${projectId}`);
+    const projectSlug = projects.find(
+      (project: any) => project.id === +projectId,
+    ).slug;
+    setSelectedProjectSlug(projectSlug || undefined);
+
+    navigate(`/team/${selectedTeam}/project/${projectSlug}`);
+  };
+
+  const handleTeamChange = (teamId: string) => {
+    const teamSlug = teams.find((team: any) => team.id === +teamId).slug;
+
+    if (teamSlug === selectedTeam) {
+      return;
     }
+    setSelectedTeam(teamSlug || undefined);
+    setSelectedProjectSlug(undefined);
+
+    navigate(`/team/${teamSlug}`);
   };
 
   return (
     <header className={styles.header}>
       <div className={styles.projectSection}>
-        <p>PROJECT: </p>
-        <Select.Root
-          onValueChange={handleProjectChange}
-          value={selectedProjectId || ""}
-        >
-          <Select.Trigger className={styles.selectTrigger}>
-            <Select.Value placeholder="Select project..." />
-            <Select.Icon className="SelectIcon">
-              <ChevronDownIcon />
-            </Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Content position="popper" sideOffset={4}>
-              <Select.ScrollUpButton />
-              <Select.Viewport className={styles.selectViewport}>
-                {projects?.map((project: any) => (
-                  <Select.Item
-                    key={project.id}
-                    value={project.id.toString()}
-                    className={styles.selectItem}
-                  >
-                    <Select.ItemText>{project.name}</Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.Viewport>
-            </Select.Content>
-          </Select.Portal>
-        </Select.Root>
+        <div className={styles.teamField}>
+          <p>TEAM: </p>
+          <SelectField
+            placeholder="Select team..."
+            options={teams?.map((team: any) => ({
+              label: team.name,
+              value: team.id,
+            }))}
+            onSelect={handleTeamChange}
+            value={selectedTeam}
+          />
+        </div>
+        <div>|</div>
+        <div className={styles.projectField}>
+          <p>PROJECT: </p>
+          <SelectField
+            placeholder="Select project..."
+            options={projects?.map((project: any) => ({
+              label: project.name,
+              value: project.id,
+            }))}
+            onSelect={handleProjectChange}
+            value={
+              projects?.find(
+                (project: any) => project.slug === selectedProjectSlug,
+              )?.name
+            }
+          />
+        </div>
       </div>
 
       <h1>{children}</h1>

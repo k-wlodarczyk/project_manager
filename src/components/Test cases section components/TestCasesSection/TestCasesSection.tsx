@@ -22,9 +22,9 @@ export default function TestCasesSection() {
   const [selectedTestCaseId, setSelectedTestCaseId] = useState<
     number | undefined
   >(undefined);
-  const [selectedModuleId, setSelectedModuleId] = useState<number | undefined>(
-    undefined,
-  );
+  const [_selectedModuleSlug, setSelectedModuleSlug] = useState<
+    string | undefined
+  >(undefined);
   const [popupModuleName, setPopupModuleName] = useState<string | undefined>(
     undefined,
   );
@@ -48,13 +48,13 @@ export default function TestCasesSection() {
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
   const navigate = useNavigate();
-  const { projectId, moduleId, testcaseId } = useParams();
+  const { teamSlug, projectSlug, moduleSlug, testcaseId } = useParams();
 
   const ref = useRef<any>(null);
 
   useEffect(() => {
     setCheckedTestCases([]);
-  }, [projectId, moduleId]);
+  }, [teamSlug, projectSlug, moduleSlug]);
 
   useEffect(() => {
     if (testcaseId) {
@@ -64,12 +64,8 @@ export default function TestCasesSection() {
   }, [testcaseId]);
 
   useEffect(() => {
-    if (moduleId) {
-      setSelectedModuleId(+moduleId);
-    } else {
-      setSelectedModuleId(undefined);
-    }
-  }, [moduleId, projectId]);
+    setSelectedModuleSlug(moduleSlug || undefined);
+  }, [teamSlug, moduleSlug, projectSlug]);
 
   const {
     data: fetchedTestCases,
@@ -80,6 +76,7 @@ export default function TestCasesSection() {
     "modules",
     "view",
   );
+  const { data: fetchedProjects } = useFetchItems("projects", "view");
 
   const [testCases, setTestCases] = useState<any[]>([]);
   const [modules, setModules] = useState<any[]>([]);
@@ -113,9 +110,17 @@ export default function TestCasesSection() {
 
   const { title, subtitle } = MODAL_CONFIG[modalMode];
 
+  const projectId = fetchedProjects?.map(
+    (project: any) => project.slug === projectSlug,
+  ).id;
+
   useEffect(() => {
     refresh();
-  }, [moduleId, refresh]);
+  }, [moduleSlug, refresh]);
+
+  const moduleId = modules?.find(
+    (module: any) => module.slug === moduleSlug,
+  )?.id;
 
   function showCreateTestCaseModal() {
     setModalType("testCases");
@@ -134,10 +139,10 @@ export default function TestCasesSection() {
     setIsEditing(false);
     setIsCopy(false);
     setModalType("testCases");
-    if (moduleId) {
-      navigate(`/project/${projectId}/module/${moduleId}`);
+    if (moduleSlug) {
+      navigate(`/team/${teamSlug}/project/${projectSlug}/module/${moduleSlug}`);
     } else {
-      navigate(`/project/${projectId}`);
+      navigate(`/team/${teamSlug}/project/${projectSlug}`);
     }
   }
 
@@ -198,12 +203,14 @@ export default function TestCasesSection() {
   }
 
   function handleSelectModule(id: number | undefined) {
-    setSelectedModuleId(id);
+    debugger;
+    const moduleSlug = modules?.find((module: any) => module.id === id)?.slug;
+    setSelectedModuleSlug(moduleSlug);
 
     if (id !== undefined) {
-      navigate(`/project/${projectId}/module/${id}`);
+      navigate(`/team/${teamSlug}/project/${projectSlug}/module/${moduleSlug}`);
     } else {
-      navigate(`/project/${projectId}`);
+      navigate(`/team/${teamSlug}/project/${projectSlug}`);
     }
   }
 
@@ -229,11 +236,11 @@ export default function TestCasesSection() {
 
   const orderedTestCases: any[] = [];
 
-  const shouldRenderList = !moduleId && !isLoading && modules && testCases;
+  const shouldRenderList = !moduleSlug && !isLoading && modules && testCases;
 
-  if (moduleId && testCases) {
+  if (moduleSlug && testCases) {
     const moduleTestCases = testCases.filter(
-      (tc: any) => +tc.module_id === +moduleId,
+      (tc: any) => tc.modules.slug === moduleSlug,
     );
     orderedTestCases.push(...moduleTestCases);
   }
@@ -403,10 +410,12 @@ export default function TestCasesSection() {
     setSelectedTestCaseId(testCaseId);
     if (moduleId) {
       navigate(
-        `/project/${projectId}/module/${moduleId}/testCase/${testCaseId}`,
+        `/team/${teamSlug}/project/${projectSlug}/module/${moduleSlug}/testCase/${testCaseId}`,
       );
     } else {
-      navigate(`/project/${projectId}/testCase/${testCaseId}`);
+      navigate(
+        `/team/${teamSlug}/project/${projectSlug}/testCase/${testCaseId}`,
+      );
     }
   }
 
@@ -421,10 +430,12 @@ export default function TestCasesSection() {
     setSelectedTestCaseId(testCaseId);
     if (moduleId) {
       navigate(
-        `/project/${projectId}/module/${moduleId}/testCase/${testCaseId}`,
+        `/team/${teamSlug}/project/${projectSlug}/module/${moduleSlug}/testCase/${testCaseId}`,
       );
     } else {
-      navigate(`/project/${projectId}/testCase/${testCaseId}`);
+      navigate(
+        `/team/${teamSlug}/project/${projectSlug}/testCase/${testCaseId}`,
+      );
     }
   }
 
@@ -436,8 +447,8 @@ export default function TestCasesSection() {
         modules={modules}
         testCases={testCases}
         onClick={handleSelectModule}
-        projectId={projectId}
-        selectedModuleId={selectedModuleId}
+        projectSlug={projectSlug}
+        selectedModuleId={moduleId}
         onModulesReorder={handleModuleReorder}
         onModuleActionSelect={handleModuleAction}
       />
@@ -452,8 +463,9 @@ export default function TestCasesSection() {
 
       <div className={styles.list}>
         <TestCasesList
-          activeModuleId={moduleId}
-          activeProjectId={projectId}
+          activeTeamSlug={teamSlug}
+          activeModuleSlug={moduleSlug}
+          activeProjectSlug={projectSlug}
           testCases={testCases}
           checkedTestCases={checkedTestCases}
           onCheckboxChange={handleCheckboxClick}

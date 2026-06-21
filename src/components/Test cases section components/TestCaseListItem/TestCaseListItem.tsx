@@ -6,8 +6,9 @@ import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 
 interface TestCaseListItemProps {
   testCase: any;
-  activeModuleId?: string;
-  activeProjectId?: string;
+  activeTeamSlug?: string;
+  activeModuleSlug?: string;
+  activeProjectSlug?: string;
   checkedTestCases: number[];
   ref?: any;
   dragHandleProps?: any;
@@ -31,8 +32,9 @@ const testCaseExecutionCss = {
 
 export default function TestCaseListItem({
   testCase,
-  activeModuleId,
-  activeProjectId,
+  activeTeamSlug,
+  activeModuleSlug,
+  activeProjectSlug,
   checkedTestCases,
   onCheckboxChange,
   ref,
@@ -40,10 +42,10 @@ export default function TestCaseListItem({
   ...draggableProps
 }: TestCaseListItemProps) {
   const linkPath = useMemo(() => {
-    return activeModuleId
-      ? `/project/${activeProjectId}/module/${activeModuleId}/testCase/${testCase.id}`
-      : `/project/${activeProjectId}/testCase/${testCase.id}`;
-  }, [activeModuleId, activeProjectId, testCase.id]);
+    return activeModuleSlug
+      ? `/team/${activeTeamSlug}/project/${activeProjectSlug}/module/${activeModuleSlug}/testCase/${testCase.id}`
+      : `/team/${activeTeamSlug}/project/${activeProjectSlug}/testCase/${testCase.id}`;
+  }, [activeModuleSlug, activeProjectSlug, testCase.id]);
 
   return (
     <div ref={ref} {...draggableProps}>
@@ -93,7 +95,7 @@ export default function TestCaseListItem({
           >
             {testCase.execution}
           </div>
-          <div>2026-04-12</div>
+          <div>-</div>
         </Link>
       </div>
     </div>

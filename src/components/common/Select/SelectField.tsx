@@ -30,7 +30,6 @@ export default function SelectField({
       defaultValue="Todo"
       value={value || ""}
       onValueChange={onSelect}
-      // open={value === "Passed" ? true : false}
     >
       <Select.Trigger className={styles.selectTrigger} disabled={disabled}>
         {value ? (
@@ -79,30 +78,6 @@ export default function SelectField({
                 </Select.ItemText>
               </Select.Item>
             ))}
-            {/* <Select.Item value="Passed" className={clsx(styles.selectItem)}>
-              <span className={clsx(styles.statusBadge, styles.selectPassed)}>
-                {" "}
-                PASSED
-              </span>
-            </Select.Item>
-            <Select.Item value="Failed" className={styles.selectItem}>
-              <span className={clsx(styles.statusBadge, styles.selectFailed)}>
-                {" "}
-                FAILED
-              </span>
-            </Select.Item>
-            <Select.Item value="Skipped" className={styles.selectItem}>
-              <span className={clsx(styles.statusBadge, styles.selectSkipped)}>
-                {" "}
-                SKIPPED
-              </span>
-            </Select.Item>
-            <Select.Item value="Todo" className={styles.selectItem}>
-              <span className={clsx(styles.statusBadge, styles.selectTodo)}>
-                {" "}
-                TO DO
-              </span>
-            </Select.Item> */}
           </Select.Viewport>
         </Select.Content>
       </Select.Portal>

@@ -7,7 +7,7 @@ interface TestCasesModulesSectionProps {
   modules: any[];
   testCases: any[];
   onClick: (id: number | undefined) => void;
-  projectId: string | undefined;
+  projectSlug: string | undefined;
   selectedModuleId?: number;
   onModuleActionSelect: () => void;
   onModulesReorder: (updatedModules: any[]) => void;
@@ -17,12 +17,12 @@ export default function TestCasesModulesSection({
   modules,
   testCases,
   onClick,
-  projectId,
+  projectSlug,
   selectedModuleId,
   onModuleActionSelect,
   onModulesReorder,
 }: TestCasesModulesSectionProps) {
-  if (!projectId) return <></>;
+  if (!projectSlug) return <></>;
 
   const [fetchedModules, setFetchedModules] = useState(modules || []);
 
@@ -49,7 +49,7 @@ export default function TestCasesModulesSection({
     let toDoProjectCases = 0;
 
     testCases?.forEach((tc: any) => {
-      if (tc.project_id === +projectId) {
+      if (tc.projects.slug === projectSlug) {
         totalProjectCases++;
         if (tc.status === "Passed") passedProjectCases++;
         if (tc.status === "Failed") failedProjectCases++;
@@ -89,7 +89,7 @@ export default function TestCasesModulesSection({
       modulesStats: stats,
       projectStats,
     };
-  }, [testCases, projectId]);
+  }, [testCases, projectSlug]);
 
   const reorder = (list: any[], startIndex: number, endIndex: number) => {
     const result = Array.from(list);
@@ -126,7 +126,7 @@ export default function TestCasesModulesSection({
 
   return (
     <>
-      {projectId && (
+      {projectSlug && (
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
             {(provided) => (

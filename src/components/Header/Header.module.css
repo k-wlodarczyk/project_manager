@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 1.4rem 6.4rem;
 }
@@ -29,28 +30,9 @@ p {
     sans-serif;
 }
 
-.selectTrigger {
+.teamField,
+.projectField {
   display: flex;
+  align-items: center;
   gap: 1.2rem;
-  border: 1px solid rgb(158, 158, 158);
-}
-
-.selectViewport {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  background: #fff;
-  border: 1px solid rgb(158, 158, 158);
-  border-radius: 6px;
-}
-
-.selectItem {
-  font-size: 1.6rem;
-  padding: 0.6rem;
-}
-
-.selectItem:hover {
-  border: none;
-  background-color: #5f1e9c;
-  color: #fff;
 }

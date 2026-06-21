@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
-import Header from "./components/Header/Header";
 
 export default function App() {
   return (
@@ -8,17 +7,22 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
 
-        <Route path="/project/:projectId" element={<Dashboard />} />
+        <Route path="team/:teamSlug" element={<Dashboard />} />
+
         <Route
-          path="/project/:projectId/module/:moduleId"
+          path="team/:teamSlug/project/:projectSlug"
           element={<Dashboard />}
         />
         <Route
-          path="/project/:projectId/testcase/:testcaseId"
+          path="team/:teamSlug/project/:projectSlug/module/:moduleSlug"
           element={<Dashboard />}
         />
         <Route
-          path="/project/:projectId/module/:moduleId/testcase/:testcaseId"
+          path="team/:teamSlug/project/:projectSlug/testcase/:testcaseId"
+          element={<Dashboard />}
+        />
+        <Route
+          path="team/:teamSlug/project/:projectSlug/module/:moduleSlug/testcase/:testcaseId"
           element={<Dashboard />}
         />
       </Routes>

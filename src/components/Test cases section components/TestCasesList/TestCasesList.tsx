@@ -6,8 +6,9 @@ import styles from "./TestCasesList.module.scss";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 
 interface TestCasesListProps {
-  activeModuleId?: string;
-  activeProjectId?: string;
+  activeTeamSlug?: string;
+  activeModuleSlug?: string;
+  activeProjectSlug?: string;
   testCases: any[];
   checkedTestCases: number[];
   modules: any[];
@@ -21,8 +22,9 @@ interface TestCasesListProps {
 }
 
 export default function TestCasesList({
-  activeModuleId,
-  activeProjectId,
+  activeTeamSlug,
+  activeModuleSlug,
+  activeProjectSlug,
   testCases = [],
   checkedTestCases,
   modules,
@@ -73,7 +75,7 @@ export default function TestCasesList({
 
   const activeModuleTestCases =
     testCases?.filter(
-      (testCase: any) => testCase.module_id === +(activeModuleId || 0),
+      (testCase: any) => testCase.modules.slug === activeModuleSlug,
     ) || [];
 
   return (
@@ -81,10 +83,10 @@ export default function TestCasesList({
       <TestCasesListHeader
         onGlobalChecked={onGlobalChecked}
         testCases={testCases}
-        activeModuleId={activeModuleId}
+        activeModuleId={activeModuleSlug}
         checkedTestCases={checkedTestCases}
       />
-      {!activeModuleId ? (
+      {!activeModuleSlug ? (
         <div className={styles.listContent}>
           {modules?.map((module: any) => {
             const moduleTestCases =
@@ -124,8 +126,9 @@ export default function TestCasesList({
                               dragHandleProps={provided.dragHandleProps}
                               key={tc.id}
                               testCase={tc}
-                              activeModuleId={activeModuleId}
-                              activeProjectId={activeProjectId}
+                              activeTeamSlug={activeTeamSlug}
+                              activeModuleSlug={activeModuleSlug}
+                              activeProjectSlug={activeProjectSlug}
                               checkedTestCases={checkedTestCases}
                               onCheckboxChange={onCheckboxChange}
                             />
@@ -145,7 +148,7 @@ export default function TestCasesList({
           <DragDropContext
             onDragEnd={(result) => onDragEnd(result, activeModuleTestCases)}
           >
-            <Droppable droppableId={activeModuleId.toString()}>
+            <Droppable droppableId={activeModuleSlug}>
               {(provided) => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   {activeModuleTestCases.map((moduleTc: any, index: number) => (
@@ -161,8 +164,9 @@ export default function TestCasesList({
                           dragHandleProps={provided.dragHandleProps}
                           key={moduleTc.id}
                           testCase={moduleTc}
-                          activeModuleId={activeModuleId}
-                          activeProjectId={activeProjectId}
+                          activeTeamSlug={activeTeamSlug}
+                          activeModuleSlug={activeModuleSlug}
+                          activeProjectSlug={activeProjectSlug}
                           checkedTestCases={checkedTestCases}
                           onCheckboxChange={onCheckboxChange}
                         />

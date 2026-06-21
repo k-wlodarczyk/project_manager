@@ -3,23 +3,47 @@ import { supabase } from "../supabaseClient";
 import { useParams } from "react-router-dom";
 
 const SELECT_FIELDS = {
-  projects: "id, name",
-  modules: "id, name, order",
+  teams: "id, name, slug",
+  projects: "id, name, slug, teams!inner(slug)",
+  modules: "id, name, order, slug, projects!inner(slug)",
   test_cases:
-    "id, name, module_id, project_id, description, status, execution, order_in_module",
+    "id, name, module_id, project_id, description, status, execution, order_in_module, projects!inner(slug), modules!inner(slug)",
   test_case_steps: "id, action, input_data, expected_result",
 };
 
 export function useFetchItems(
-  type: "projects" | "modules" | "test_cases" | "test_case_steps",
+  type: "teams" | "projects" | "modules" | "test_cases" | "test_case_steps",
   viewMode?: "create" | "view" | "edit" | "copy",
   objectId?: number,
   range?: "all",
 ) {
-  const { projectId, moduleId } = useParams();
+  const { projectSlug, moduleSlug, teamSlug } = useParams();
 
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  function getQueryProjects(query: any) {
+    return query.eq("teams.slug", teamSlug).order("id", { ascending: true });
+  }
+
+  function getQueryModules(query: any) {
+    // const searchProject = projectId || -1;
+    return query
+      .eq("projects.slug", projectSlug)
+      .order("order", { ascending: true });
+  }
+
+  function getQueryTestCases(query: any) {
+    // const searchProject = projectId || -1;
+    // const searchModule = moduleId || -1;
+    query =
+      moduleSlug && !range
+        ? query.eq("modules.slug", moduleSlug)
+        : query.eq("projects.slug", projectSlug);
+    return query
+      .order("module_id", { ascending: true })
+      .order("order_in_module", { ascending: true });
+  }
 
   const fetchData = useCallback(async () => {
     if (viewMode !== "view") {
@@ -35,35 +59,21 @@ export function useFetchItems(
     if (objectId && type !== "test_case_steps") {
       query = query.eq("id", objectId).single();
     } else {
+      if (type === "projects") {
+        query = getQueryProjects(query);
+      }
+
       if (type === "modules") {
-        query = query.eq("project_id", projectId);
+        query = getQueryModules(query);
       }
 
       if (type === "test_cases") {
-        if (range !== "all") {
-          if (moduleId) {
-            query = query.eq("module_id", moduleId);
-          } else if (projectId) {
-            query = query.eq("project_id", projectId);
-          }
-        } else {
-          query = query.eq("project_id", projectId);
-        }
+        query = getQueryTestCases(query);
       }
 
       if (type === "test_case_steps") {
         query = query.eq("test_case_id", objectId);
       }
-    }
-
-    if (type === "modules") {
-      query = query.order("order", { ascending: true });
-    } else if (type === "test_cases") {
-      query = query
-        .order("module_id", { ascending: true })
-        .order("order_in_module", { ascending: true });
-    } else {
-      query = query.order("id", { ascending: true });
     }
 
     const { data, error } = await query;
@@ -75,7 +85,7 @@ export function useFetchItems(
     }
 
     setIsLoading(false);
-  }, [type, projectId, moduleId, objectId, viewMode]);
+  }, [type, projectSlug, moduleSlug, objectId, viewMode, teamSlug]);
 
   useEffect(() => {
     fetchData();

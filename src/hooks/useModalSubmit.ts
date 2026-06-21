@@ -12,9 +12,19 @@ export function useModalSubmit({
   onCancel,
   onCancelEdit,
 }: useModalSubmitProps) {
-  const { projectId } = useParams();
+  const { projectId, teamSlug } = useParams();
 
   const submitProject = async (formData: any) => {
+    const { data: teamData, error: teamError } = await supabase
+      .from("teams")
+      .select("id")
+      .eq("slug", teamSlug)
+      .single();
+
+    if (teamError || !teamData) {
+      return console.error("Could not find team with this slug", teamError);
+    }
+
     if (!formData.projectName) return alert("Project name is required");
 
     const { data, error } = await supabase.from("projects").insert([
@@ -22,6 +32,7 @@ export function useModalSubmit({
         name: formData.projectName,
         description: formData.description,
         url: formData.link,
+        team_id: teamData.id,
       },
     ]);
 
