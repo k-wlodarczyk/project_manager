@@ -203,7 +203,6 @@ export default function TestCasesSection() {
   }
 
   function handleSelectModule(id: number | undefined) {
-    debugger;
     const moduleSlug = modules?.find((module: any) => module.id === id)?.slug;
     setSelectedModuleSlug(moduleSlug);
 
@@ -439,6 +438,27 @@ export default function TestCasesSection() {
     }
   }
 
+  function getTotalTestCasesCounter() {
+    const filteredList = moduleSlug
+      ? orderedTestCases.filter(
+          (testCase: any) => testCase.modules?.slug === moduleSlug,
+        )
+      : orderedTestCases;
+
+    const currentIdx = filteredList.findIndex(
+      (testCase: any) => testCase.id === selectedTestCaseId,
+    );
+
+    const testCaseNo = currentIdx !== -1 ? currentIdx + 1 : 1;
+
+    const totalTestCases = filteredList.length;
+
+    return {
+      testCaseNo,
+      totalTestCases,
+    };
+  }
+
   useOnClickOutside(ref, handleClickOutside);
 
   return (
@@ -492,6 +512,7 @@ export default function TestCasesSection() {
           navigationEnabled={showNextPreviousTestCase()}
           onNextTestCase={handleNextTestCase}
           onPreviousTestCase={handlePreviousTestCase}
+          testCasesCounterData={getTotalTestCasesCounter()}
         />
       )}
 

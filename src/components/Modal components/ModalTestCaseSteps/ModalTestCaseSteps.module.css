@@ -9,7 +9,6 @@ textarea {
 }
 
 .testCaseStepsSection {
-  /* max-height: 55%; */
   overflow-y: auto;
 
   flex-shrink: 1;

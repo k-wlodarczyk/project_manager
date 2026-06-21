@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import styles from "./Modal.module.css";
 import { useHotkeys } from "react-hotkeys-hook";
 import ModalField from "../ModalField/ModalField";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FieldConfig } from "../../../types/modal";
 import ModalTestCaseSteps from "../ModalTestCaseSteps/ModalTestCaseSteps";
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
@@ -27,6 +27,7 @@ interface ModalProps {
   onNextTestCase?: () => void;
   onPreviousTestCase?: () => void;
   badge?: boolean;
+  testCasesCounterData?: { testCaseNo: number; totalTestCases: number };
 }
 
 const DB_TYPE = {
@@ -50,6 +51,7 @@ export default function Modal({
   navigationEnabled,
   onNextTestCase,
   onPreviousTestCase,
+  testCasesCounterData,
 }: ModalProps) {
   useHotkeys("esc", onCancel, { enableOnFormTags: true });
 
@@ -108,6 +110,14 @@ export default function Modal({
       });
     }
   }, [fetchedItem, viewMode, fields, objectId]);
+
+  const testCaseStepsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (testCaseStepsRef.current) {
+      testCaseStepsRef.current.scrollTop = 0;
+    }
+  }, [objectId]);
 
   const handleChange = async (name: string, value: string) => {
     if (value === "Todo") {
@@ -198,6 +208,7 @@ export default function Modal({
 
             {type === "testCases" && (
               <ModalTestCaseSteps
+                ref={testCaseStepsRef}
                 testCaseSteps={testCaseSteps}
                 handleNewTestCaseStep={newStep}
                 handleNewTestCaseStepAfterIndex={newStepAfterIndex}
@@ -300,6 +311,11 @@ export default function Modal({
               >
                 &larr; Previous
               </button>
+              <div className={styles.counterData}>
+                <div>{testCasesCounterData?.testCaseNo}</div>
+                <div>of</div>
+                <div>{testCasesCounterData?.totalTestCases}</div>
+              </div>
               <button
                 disabled={!navigationEnabled?.nextEnabled}
                 onClick={onNextTestCase}

@@ -97,5 +97,16 @@ button:disabled {
 
 .nextPreviousSection {
   display: flex;
+  align-items: center;
   gap: 0.6rem;
+}
+
+.counterData {
+  font-size: 1.4rem;
+  border-radius: 6px;
+  color: var(--dark-navy);
+  background-color: #7c3aed66;
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
 }

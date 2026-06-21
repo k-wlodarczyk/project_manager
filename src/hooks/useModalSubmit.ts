@@ -12,7 +12,7 @@ export function useModalSubmit({
   onCancel,
   onCancelEdit,
 }: useModalSubmitProps) {
-  const { projectId, teamSlug } = useParams();
+  const { projectSlug, teamSlug } = useParams();
 
   const submitProject = async (formData: any) => {
     const { data: teamData, error: teamError } = await supabase
@@ -45,10 +45,16 @@ export function useModalSubmit({
   const updateProject = async (_formData: any) => {};
 
   const submitModules = async (formData: any) => {
+    const { data: projectData } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("slug", projectSlug)
+      .single();
+
     const { data: highestOrderModule, error: fetchError } = await supabase
       .from("modules")
       .select("order")
-      .eq("project_id", projectId)
+      .eq("project_id", projectData?.id)
       .order("order", { ascending: false })
       .limit(1);
 
@@ -67,7 +73,7 @@ export function useModalSubmit({
         {
           name: formData.moduleName,
           description: formData.description,
-          project_id: projectId,
+          project_id: projectData?.id,
           order: nextOrder,
         },
       ])
@@ -107,10 +113,16 @@ export function useModalSubmit({
   };
 
   const submitTestCases = async (formData: any, steps: any[]) => {
+    const { data: projectData } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("slug", projectSlug)
+      .single();
+
     const { data: highestOrderTestCase, error: fetchError } = await supabase
       .from("test_cases")
       .select("order_in_module")
-      .eq("project_id", projectId)
+      .eq("project_id", projectData?.id)
       .eq("module_id", formData.module_id)
       .order("order_in_module", { ascending: false })
       .limit(1);
@@ -133,7 +145,7 @@ export function useModalSubmit({
         {
           name: formData.name,
           description: formData.description,
-          project_id: projectId,
+          project_id: projectData?.id,
           module_id: formData.module_id,
           status: formData.status,
           execution: formData.execution,

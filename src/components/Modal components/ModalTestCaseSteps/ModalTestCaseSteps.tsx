@@ -15,6 +15,7 @@ interface ModalTestCaseStepsProps {
   handleUpdateTestCaseSteps: (id: number, field: string, value: string) => void;
   handleDeleteTestCaseStep: (id: number) => void;
   disabled: boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 export default function ModalTestCaseSteps({
@@ -24,9 +25,10 @@ export default function ModalTestCaseSteps({
   handleUpdateTestCaseSteps,
   handleDeleteTestCaseStep,
   disabled,
+  ref,
 }: ModalTestCaseStepsProps) {
   return (
-    <div className={styles.testCaseStepsSection}>
+    <div ref={ref} className={styles.testCaseStepsSection}>
       <div
         className={clsx(
           styles.testCasesHeader,
