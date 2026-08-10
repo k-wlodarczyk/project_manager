@@ -10,6 +10,8 @@ interface SelectFieldProps {
   portalContainer?: HTMLElement | null;
   badge?: boolean;
   disabled?: boolean;
+  triggerTestId?: string;
+  listTestId?: string;
 }
 
 const getBadgeClass = (status: string | undefined) => {
@@ -24,6 +26,8 @@ export default function SelectField({
   portalContainer,
   badge,
   disabled,
+  triggerTestId,
+  listTestId,
 }: SelectFieldProps) {
   return (
     <Select.Root
@@ -31,7 +35,11 @@ export default function SelectField({
       value={value || ""}
       onValueChange={onSelect}
     >
-      <Select.Trigger className={styles.selectTrigger} disabled={disabled}>
+      <Select.Trigger
+        className={styles.selectTrigger}
+        disabled={disabled}
+        data-testid={triggerTestId}
+      >
         {value ? (
           <span
             className={clsx(
@@ -55,7 +63,10 @@ export default function SelectField({
           sideOffset={4}
           className={styles.selectContent}
         >
-          <Select.Viewport className={styles.selectViewport}>
+          <Select.Viewport
+            className={styles.selectViewport}
+            data-testid={listTestId}
+          >
             {options?.map((option) => (
               <Select.Item
                 key={option.value}

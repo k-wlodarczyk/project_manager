@@ -100,3 +100,13 @@ textarea {
   color: #ccc;
   font-weight: bold;
 }
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rowWrapperDragging .testCaseStepsItem {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  border-color: #3b82f6;
+  background: #fff;
+}

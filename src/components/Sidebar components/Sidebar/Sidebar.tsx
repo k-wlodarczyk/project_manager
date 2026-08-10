@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import styles from "./Sidebar.module.scss";
 import Popup from "../../Popup/Popup";
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
-import { useFetchItems } from "../../../hooks/useFetchItems";
+import { useNavigate, useParams } from "react-router-dom";
 
 type PopupAction = "newProject";
 
@@ -46,10 +46,17 @@ interface PopupSetting {
 export default function Sidebar() {
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
-  const { refresh: refreshProjects } = useFetchItems("projects", "view");
+  const { teamSlug } = useParams();
+  const navigate = useNavigate();
 
   const { submitProject } = useModalSubmit({
-    onSuccess: refreshProjects,
+    onSuccess: (newProjectData: any) => {
+      handleClosePopup();
+
+      if (teamSlug && newProjectData?.slug) {
+        navigate(`/team/${teamSlug}/project/${newProjectData.slug}`);
+      }
+    },
     onCancel: handleClosePopup,
     onCancelEdit: handleClosePopup,
   });
@@ -80,6 +87,7 @@ export default function Sidebar() {
           onSubmit={handleSubmitPopup}
           onCancel={handleClosePopup}
           type={POPUP_CONFIG["newProject"].type}
+          dataTestId="project-modal"
         />
       )}
     </div>

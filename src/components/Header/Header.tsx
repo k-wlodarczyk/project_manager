@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchItems } from "../../hooks/useFetchItems";
 import styles from "./Header.module.css";
-import { useEffect, useState } from "react";
 import SelectField from "../common/Select/SelectField";
 
 interface HeaderProps {
@@ -10,44 +9,32 @@ interface HeaderProps {
 
 export default function Header({ children }: HeaderProps) {
   const navigate = useNavigate();
+  const { projectSlug, teamSlug } = useParams();
+
   const { data: teams } = useFetchItems("teams", "view");
   const { data: projects } = useFetchItems("projects", "view");
-  const { projectSlug, teamSlug } = useParams();
-  const [selectedTeam, setSelectedTeam] = useState<string | undefined>(
-    undefined,
-  );
-  const [selectedProjectSlug, setSelectedProjectSlug] = useState<
-    string | undefined
-  >(undefined);
-
-  useEffect(() => {
-    setSelectedProjectSlug(projectSlug || undefined);
-
-    if (teamSlug) {
-      setSelectedTeam(teamSlug);
-    }
-  }, [teamSlug, projectSlug]);
 
   const handleProjectChange = (projectId: string) => {
-    const projectSlug = projects.find(
+    const projectSlug = projects?.find(
       (project: any) => project.id === +projectId,
     ).slug;
-    setSelectedProjectSlug(projectSlug || undefined);
 
-    navigate(`/team/${selectedTeam}/project/${projectSlug}`);
+    navigate(`/team/${teamSlug}/project/${projectSlug}`);
   };
 
   const handleTeamChange = (teamId: string) => {
-    const teamSlug = teams.find((team: any) => team.id === +teamId).slug;
+    const targetTeam = teams?.find((team: any) => team.id === +teamId);
 
-    if (teamSlug === selectedTeam) {
+    if (targetTeam.slug === teamSlug) {
       return;
     }
-    setSelectedTeam(teamSlug || undefined);
-    setSelectedProjectSlug(undefined);
 
-    navigate(`/team/${teamSlug}`);
+    navigate(`/team/${targetTeam.slug}`);
   };
+
+  const activeProjectName = projects?.find(
+    (project: any) => project.slug === projectSlug,
+  )?.name;
 
   return (
     <header className={styles.header}>
@@ -61,7 +48,9 @@ export default function Header({ children }: HeaderProps) {
               value: team.id,
             }))}
             onSelect={handleTeamChange}
-            value={selectedTeam}
+            value={teamSlug}
+            triggerTestId="teams-trigger"
+            listTestId="teams-list"
           />
         </div>
         <div>|</div>
@@ -74,11 +63,9 @@ export default function Header({ children }: HeaderProps) {
               value: project.id,
             }))}
             onSelect={handleProjectChange}
-            value={
-              projects?.find(
-                (project: any) => project.slug === selectedProjectSlug,
-              )?.name
-            }
+            value={activeProjectName}
+            triggerTestId="projects-trigger"
+            listTestId="projects-list"
           />
         </div>
       </div>

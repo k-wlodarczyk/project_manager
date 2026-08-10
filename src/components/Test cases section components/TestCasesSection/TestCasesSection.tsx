@@ -14,7 +14,8 @@ import TestCasesModulesSection from "../TestCasesModulesSection/TestCasesModules
 import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import Actionbar from "../Actionbar/Actionbar";
 import TestCasesList from "../TestCasesList/TestCasesList";
-import { supabase } from "../../../supabaseClient";
+import { useReorderItems } from "../../../hooks/useReorderItems";
+import type { TestCase, TestCaseWithRelations } from "../../../types/testCase";
 
 export default function TestCasesSection() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -45,6 +46,7 @@ export default function TestCasesSection() {
   const [selectedDropdownOption, setSelectedDropdownOption] = useState<
     undefined | "changeTestCaseStatus" | "changeModule" | "deleteTestCases"
   >(undefined);
+  const [localTestCases, setLocalTestCases] = useState<any[]>([]);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
 
   const navigate = useNavigate();
@@ -67,38 +69,32 @@ export default function TestCasesSection() {
     setSelectedModuleSlug(moduleSlug || undefined);
   }, [teamSlug, moduleSlug, projectSlug]);
 
-  const {
-    data: fetchedTestCases,
-    isLoading,
-    refresh,
-  } = useFetchItems("test_cases", "view", undefined, "all");
-  const { data: fetchedModules, refresh: refreshModules } = useFetchItems(
-    "modules",
+  const { data: testCases, refresh } = useFetchItems(
+    "test_cases",
     "view",
+    undefined,
+    "all",
   );
+  const { data: modules } = useFetchItems("modules", "view");
   const { data: fetchedProjects } = useFetchItems("projects", "view");
 
-  const [testCases, setTestCases] = useState<any[]>([]);
-  const [modules, setModules] = useState<any[]>([]);
-
   useEffect(() => {
-    if (fetchedModules) {
-      setModules(fetchedModules);
-    }
-
-    if (fetchedTestCases) {
-      setTestCases(fetchedTestCases);
-    }
-  }, [fetchedModules, fetchedTestCases]);
+    setLocalTestCases(testCases);
+  }, [testCases]);
 
   const { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx } =
     useTestCases(checkedTestCases);
 
   const { submitModules, updateModule, deleteModule } = useModalSubmit({
-    onSuccess: refreshModules,
+    onSuccess: handleClosePopup,
     onCancel: handleClosePopup,
     onCancelEdit: handleClosePopup,
   });
+
+  const {
+    reorderModules: reorderModulesAsync,
+    reorderTestCases: reorderTestCasesAsync,
+  } = useReorderItems();
 
   const modalMode = isEditing
     ? isCopy
@@ -163,46 +159,15 @@ export default function TestCasesSection() {
   }
 
   async function handleModuleReorder(updatedModules: any[]) {
-    setModules(updatedModules);
-
-    const payload = updatedModules.map((module: any) => ({
-      id: module.id,
-      name: module.name,
-      project_id: Number(projectId),
-      order: module.order,
-    }));
-
-    const { error } = await supabase
-      .from("modules")
-      .upsert(payload, { onConflict: "id" });
-
-    if (error) console.error("something went wrong");
+    await reorderModulesAsync({ reorderedModules: updatedModules, projectId });
   }
 
   async function handleTestCasesReorder(updatedTestCases: any[]) {
-    setTestCases([...updatedTestCases]);
-
-    const payload = updatedTestCases.map((tc: any) => ({
-      id: tc.id,
-      name: tc.name,
-      status: tc.status,
-      project_id: Number(projectId),
-      module_id: Number(tc.module_id),
-      order_in_module: tc.order_in_module,
-    }));
-
-    const { error } = await supabase
-      .from("test_cases")
-      .upsert(payload, { onConflict: "id" });
-
-    if (error) {
-      console.error(
-        "something went wrong with test cases reorder:",
-        error.message,
-      );
-    }
-
-    refresh();
+    setLocalTestCases([...updatedTestCases]);
+    await reorderTestCasesAsync({
+      reorderedTestCases: updatedTestCases,
+      projectId,
+    });
   }
 
   function handleSelectModule(id: number | undefined) {
@@ -218,8 +183,8 @@ export default function TestCasesSection() {
 
   function handleModuleChecked(moduleId: number) {
     const testCasesFromModule = testCases
-      .filter((testCase: any) => testCase.module_id === moduleId)
-      .map((tc: any) => tc.id);
+      .filter((testCase: TestCase) => testCase.module_id === moduleId)
+      .map((tc: TestCase) => tc.id);
 
     const areAllTestCasesFromModuleChecked = testCasesFromModule.every(
       (tc: number) => checkedTestCases.includes(tc),
@@ -238,11 +203,11 @@ export default function TestCasesSection() {
 
   const orderedTestCases: any[] = [];
 
-  const shouldRenderList = !moduleSlug && !isLoading && modules && testCases;
+  const shouldRenderList = !moduleSlug && modules && testCases;
 
   if (moduleSlug && testCases) {
     const moduleTestCases = testCases.filter(
-      (tc: any) => tc.modules.slug === moduleSlug,
+      (tc: TestCaseWithRelations) => tc.modules.slug === moduleSlug,
     );
     orderedTestCases.push(...moduleTestCases);
   }
@@ -250,7 +215,7 @@ export default function TestCasesSection() {
   if (shouldRenderList) {
     modules.forEach((module: any) => {
       const moduleTestCases = testCases.filter(
-        (tc: any) => tc.module_id === module.id,
+        (tc: TestCase) => tc.module_id === module.id,
       );
 
       if (moduleTestCases.length > 0) {
@@ -365,7 +330,7 @@ export default function TestCasesSection() {
     } else if (popupAction === "deleteModule") {
       await deleteModule(popupModuleId);
     } else if (popupAction === "editModule") {
-      await updateModule(formData, popupModuleId);
+      await updateModule({ formData, moduleId: popupModuleId });
     } else if (popupAction === "newModule") {
       await submitModules(formData);
     }
@@ -489,7 +454,7 @@ export default function TestCasesSection() {
           activeTeamSlug={teamSlug}
           activeModuleSlug={moduleSlug}
           activeProjectSlug={projectSlug}
-          testCases={testCases}
+          testCases={localTestCases}
           checkedTestCases={checkedTestCases}
           onCheckboxChange={handleCheckboxClick}
           onGlobalChecked={handleGlobalChecked}

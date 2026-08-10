@@ -10,6 +10,7 @@ import { useTestCaseSteps } from "../../../hooks/useTestCaseSteps";
 import { useFetchItems } from "../../../hooks/useFetchItems";
 import ModalActionBtns from "../ModalActionBtns/ModalActionBtns";
 import { useTestCases } from "../../../hooks/useTestCases";
+import type { TestCaseFormData } from "../../../types/testCase";
 
 interface ModalProps {
   type: "projects" | "modules" | "testCases";
@@ -72,14 +73,19 @@ export default function Modal({
 
   const { updateTestCasesStatus } = useTestCases(objectId);
 
-  const { testCaseSteps, newStep, newStepAfterIndex, updateSteps, deleteStep } =
-    useTestCaseSteps(fetchedSteps);
-  const { submitProject, submitModules, submitTestCases, updateTestCase } =
-    useModalSubmit({
-      onSuccess,
-      onCancel,
-      onCancelEdit,
-    });
+  const {
+    testCaseSteps,
+    newStep,
+    newStepAfterIndex,
+    updateSteps,
+    deleteStep,
+    reorderSteps,
+  } = useTestCaseSteps(fetchedSteps, viewMode, objectId);
+  const { submitTestCases, updateTestCase } = useModalSubmit({
+    onSuccess,
+    onCancel,
+    onCancelEdit,
+  });
 
   const [formData, setFormData] = useState<Record<string, string>>(() => {
     return fields.reduce(
@@ -141,16 +147,17 @@ export default function Modal({
   function handleSubmit() {
     const isNewRecord = viewMode === "create" || viewMode === "copy";
 
-    if (type === "projects") {
-      return isNewRecord ? submitProject(formData) : alert("ERROR");
-    }
-    if (type === "modules") {
-      return isNewRecord ? submitModules(formData) : alert("ERROR");
-    }
     if (type === "testCases") {
       return isNewRecord
-        ? submitTestCases(formData, testCaseSteps)
-        : updateTestCase(formData, testCaseSteps, objectId!);
+        ? submitTestCases({
+            formData: formData as unknown as TestCaseFormData,
+            steps: testCaseSteps,
+          })
+        : updateTestCase(
+            formData as unknown as TestCaseFormData,
+            testCaseSteps,
+            objectId!,
+          );
     }
   }
 
@@ -214,6 +221,7 @@ export default function Modal({
                 handleNewTestCaseStepAfterIndex={newStepAfterIndex}
                 handleUpdateTestCaseSteps={updateSteps}
                 handleDeleteTestCaseStep={deleteStep}
+                handleReorderTestCaseSteps={reorderSteps}
                 disabled={shouldDisableFields}
               />
             )}

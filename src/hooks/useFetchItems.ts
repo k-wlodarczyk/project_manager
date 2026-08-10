@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { supabase } from "../supabaseClient";
 import { useParams } from "react-router-dom";
 
@@ -8,7 +8,7 @@ const SELECT_FIELDS = {
   modules: "id, name, order, slug, projects!inner(slug)",
   test_cases:
     "id, name, module_id, project_id, description, status, execution, order_in_module, projects!inner(slug), modules!inner(slug)",
-  test_case_steps: "id, action, input_data, expected_result",
+  test_case_steps: "id, action, input_data, expected_result, order",
 };
 
 export function useFetchItems(
@@ -19,23 +19,22 @@ export function useFetchItems(
 ) {
   const { projectSlug, moduleSlug, teamSlug } = useParams();
 
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const queryKey = [
+    type,
+    { teamSlug, projectSlug, moduleSlug, objectId, viewMode, range },
+  ];
 
   function getQueryProjects(query: any) {
     return query.eq("teams.slug", teamSlug).order("id", { ascending: true });
   }
 
   function getQueryModules(query: any) {
-    // const searchProject = projectId || -1;
     return query
       .eq("projects.slug", projectSlug)
       .order("order", { ascending: true });
   }
 
   function getQueryTestCases(query: any) {
-    // const searchProject = projectId || -1;
-    // const searchModule = moduleId || -1;
     query =
       moduleSlug && !range
         ? query.eq("modules.slug", moduleSlug)
@@ -45,14 +44,13 @@ export function useFetchItems(
       .order("order_in_module", { ascending: true });
   }
 
-  const fetchData = useCallback(async () => {
-    if (viewMode !== "view") {
-      setIsLoading(false);
-      return;
-    }
+  function getQueryTestCaseSteps(query: any) {
+    return query
+      .eq("test_case_id", objectId)
+      .order("order", { ascending: true });
+  }
 
-    setIsLoading(true);
-
+  const fetchData = async () => {
     const fields = SELECT_FIELDS[type];
     let query: any = supabase.from(type).select(fields);
 
@@ -72,24 +70,26 @@ export function useFetchItems(
       }
 
       if (type === "test_case_steps") {
-        query = query.eq("test_case_id", objectId);
+        // query = query.eq("test_case_id", objectId);
+        query = getQueryTestCaseSteps(query);
       }
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error(`Error fetching ${type}: `, error.message);
-    } else {
-      setData(data || []);
+      throw new Error(error.message);
     }
 
-    setIsLoading(false);
-  }, [type, projectSlug, moduleSlug, objectId, viewMode, teamSlug]);
+    return data || [];
+  };
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey,
+    queryFn: fetchData,
+    enabled: viewMode === "view",
+    placeholderData: keepPreviousData,
+  });
 
-  return { data, isLoading, refresh: fetchData };
+  return { data, isLoading, refresh: refetch };
 }

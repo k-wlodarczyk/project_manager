@@ -19,6 +19,7 @@ interface PopupProps {
   onSubmit: (selectedValue: string, formData?: any) => void;
   type: "edit" | "create" | "confirmDelete" | "option" | undefined;
   checkedItemsCounter?: number;
+  dataTestId?: string;
 }
 
 export default function Popup({
@@ -28,6 +29,7 @@ export default function Popup({
   onCancel,
   onSubmit,
   checkedItemsCounter,
+  dataTestId,
 }: PopupProps) {
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -86,6 +88,7 @@ export default function Popup({
       <Dialog.Portal>
         <Dialog.Overlay className={styles.popupOverlay}>
           <Dialog.Content
+            data-testid={dataTestId}
             ref={(node) => {
               if (node && !portalContainer) {
                 setPortalContainer(node);
