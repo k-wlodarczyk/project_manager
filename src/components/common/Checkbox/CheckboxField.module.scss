@@ -1,0 +1,35 @@
+.checkboxSection {
+  display: flex;
+  align-items: center;
+}
+
+.root {
+  all: unset;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #7c3aed33;
+
+  &:hover {
+    background-color: var(--dark-navy-light);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 1.5px var(--dark-navy);
+  }
+
+  &[data-state="checked"] {
+    background-color: var(--containerBgNavy);
+  }
+}
+
+.indicator {
+  color: var(--dark-navy);
+}
+
+label {
+  padding: 0.4rem 0.8rem;
+}

@@ -8,6 +8,11 @@
   gap: 1.2rem;
   background-color: #fff;
   transition: 0.4s ease all;
+  border-bottom: var(--containerBorderNavy);
+
+  &:last {
+    border: none;
+  }
 
   .testCaseLink {
     display: grid;

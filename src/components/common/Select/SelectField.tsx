@@ -1,10 +1,11 @@
 import * as Select from "@radix-ui/react-select";
 import styles from "./SelectField.module.scss";
 import clsx from "clsx";
+import type { TestCaseStatusSelect } from "../../../types/testCase";
 
 interface SelectFieldProps {
   value?: string;
-  onSelect?: (selectedValue: string) => void;
+  onSelect?: (selectedValue: TestCaseStatusSelect) => void;
   placeholder?: string;
   options?: any[];
   portalContainer?: HTMLElement | null;

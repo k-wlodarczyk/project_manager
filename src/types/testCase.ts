@@ -1,4 +1,5 @@
 export type TestCaseStatus = "To Do" | "Passed" | "Failed" | "Skipped";
+export type TestCaseStatusSelect = "Todo" | "Passed" | "Failed" | "Skipped";
 export type TestCaseExecution = "Manual" | "Automated";
 
 export interface TestCaseFormData {

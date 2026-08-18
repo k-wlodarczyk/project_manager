@@ -58,7 +58,9 @@ export default function TestCasesModulesElement({
     >
       <div className={styles.mainContentSection}>
         <div className={styles.mainContent}>
-          <p className={styles.moduleName}>{moduleName || "All test cases"}</p>
+          <p className={styles.moduleName} data-testid="module-name">
+            {moduleName || "All test cases"}
+          </p>
           <p className={styles.testCasesCounter}>
             <strong>{statusCounter?.total}</strong>
           </p>

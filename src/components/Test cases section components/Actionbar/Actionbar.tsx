@@ -5,7 +5,11 @@ interface Actionbar {
   onNewTestClick: () => void;
   onNewModuleClick: () => void;
   onDropdownOption: (
-    selectedOption: "changeTestCaseStatus" | "deleteTestCases" | "exportXlsx",
+    selectedOption:
+      | "changeTestCaseStatus"
+      | "deleteTestCases"
+      | "resetExecutionDate"
+      | "exportXlsx",
   ) => void;
   checkedTestCasesCounter: number;
 }
@@ -44,6 +48,15 @@ export default function Actionbar({
           </button>
           <button
             className={styles.selectedItemsActionBtn}
+            onClick={() => onDropdownOption("resetExecutionDate")}
+          >
+            <span className={styles.spanIcon}>
+              <ion-icon name="refresh-outline"></ion-icon>
+            </span>
+            Reset execution date
+          </button>
+          <button
+            className={styles.selectedItemsActionBtn}
             onClick={() => onDropdownOption("exportXlsx")}
           >
             <span className={styles.spanIcon}>
@@ -76,6 +89,7 @@ export default function Actionbar({
         <button
           className={clsx(styles.newItemBtn, styles.newTestCaseBtn)}
           onClick={onNewTestClick}
+          data-testid="new-test-btn"
         >
           <span className={styles.spanIcon}>
             <ion-icon name="add-outline"></ion-icon>
@@ -85,6 +99,7 @@ export default function Actionbar({
         <button
           className={clsx(styles.newItemBtn, styles.newModuleBtn)}
           onClick={onNewModuleClick}
+          data-testid="new-module-btn"
         >
           <span className={styles.spanIcon}>
             <ion-icon name="add-outline"></ion-icon>

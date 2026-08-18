@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { supabase } from "../supabaseClient";
 import * as XLSX from "xlsx";
+import type { TestCaseStatus } from "../types/testCase";
 
 export function useTestCases(checkedTestCases: number | number[] | undefined) {
   const idsAsArray =
@@ -27,7 +28,7 @@ export function useTestCases(checkedTestCases: number | number[] | undefined) {
   }, [checkedTestCases]);
 
   const updateTestCasesStatus = useCallback(
-    async (newStatus: "To Do" | "Passed" | "Failed" | "Skipped") => {
+    async (newStatus: TestCaseStatus, shouldResetExecutionDate: boolean) => {
       if (idsAsArray.length === 0) {
         console.error("Empty array");
         return;
@@ -40,10 +41,31 @@ export function useTestCases(checkedTestCases: number | number[] | undefined) {
         .select();
 
       if (error) console.error(error);
+
+      if (shouldResetExecutionDate) {
+        await resetExecutionDate();
+      }
       return data;
     },
     [checkedTestCases],
   );
+
+  const resetExecutionDate = async () => {
+    if (idsAsArray.length === 0) {
+      console.error("Empty array");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("test_cases")
+      .update({ status_change_date: null })
+      .in("id", idsAsArray)
+      .select();
+
+    if (error) console.error(error);
+    
+    return data;
+  };
 
   const exportTestCasesToXlsx = useCallback(async () => {
     if (idsAsArray.length === 0) {
@@ -124,5 +146,10 @@ export function useTestCases(checkedTestCases: number | number[] | undefined) {
     XLSX.writeFile(workbook, `tc_export_steps_${Date.now()}.xlsx`);
   }, [idsAsArray]);
 
-  return { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx };
+  return {
+    deleteTestCases,
+    updateTestCasesStatus,
+    resetExecutionDate,
+    exportTestCasesToXlsx,
+  };
 }

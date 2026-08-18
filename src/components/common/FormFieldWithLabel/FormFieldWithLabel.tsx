@@ -1,17 +1,21 @@
 import styles from "./FormFieldWithLabel.module.css";
 
 import SelectField from "../Select/SelectField";
+import type { TestCaseStatusSelect } from "../../../types/testCase";
+import CheckboxField from "../Checkbox/CheckboxField";
 
 interface FormFieldWithLabelProps {
-  type: "input" | "select";
+  type: "input" | "select" | "checkbox";
   label: string;
   id: string;
   name: string;
   value?: string;
+  checked?: boolean;
   portalContainer?: HTMLElement | null;
   options?: any[];
   onValueChange?: (newValue: string) => void;
-  onSelectChange?: (selectedValue: string) => void;
+  onSelectChange?: (selectedValue: TestCaseStatusSelect) => void;
+  onCheckboxChange?: (checked: boolean) => void;
   badge?: boolean;
   placeholder?: string;
   disabled?: boolean;
@@ -24,8 +28,10 @@ export default function FormFieldWithLabel({
   name,
   placeholder,
   value,
+  checked,
   onSelectChange,
   onValueChange,
+  onCheckboxChange,
   portalContainer,
   options,
   badge,
@@ -35,7 +41,8 @@ export default function FormFieldWithLabel({
   return (
     <>
       <div className={styles.fieldWithLabel}>
-        <label htmlFor={id}>{label}</label>
+        {type !== "checkbox" && <label htmlFor={id}>{label}</label>}
+
         {type === "input" && (
           <input
             type="text"
@@ -62,6 +69,7 @@ export default function FormFieldWithLabel({
             {...props}
           />
         )}
+        {type === "checkbox" && <CheckboxField id={id} label={label} checked={checked} onCheckedChange={onCheckboxChange} />}
       </div>
     </>
   );

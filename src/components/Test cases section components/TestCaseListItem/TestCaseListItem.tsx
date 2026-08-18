@@ -95,7 +95,7 @@ export default function TestCaseListItem({
           >
             {testCase.execution}
           </div>
-          <div>-</div>
+          <div>{testCase.status_change_date || "-"}</div>
         </Link>
       </div>
     </div>

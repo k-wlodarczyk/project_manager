@@ -134,12 +134,14 @@ export default function TestCasesModulesSection({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 className={styles.moduleContainers}
+                data-testid="modules-section"
               >
                 <TestCasesModulesElement
                   selectedModuleId={selectedModuleId}
                   statusCounter={testCasesStats.projectStats}
                   onClick={onClick}
                   onModuleActionSelect={onModuleActionSelect}
+                  data-testid="all-cases-panel"
                 />
                 {fetchedModules.map((module: any, index: number) => {
                   const moduleStats = testCasesStats.modulesStats[

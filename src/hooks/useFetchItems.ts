@@ -7,7 +7,7 @@ const SELECT_FIELDS = {
   projects: "id, name, slug, teams!inner(slug)",
   modules: "id, name, order, slug, projects!inner(slug)",
   test_cases:
-    "id, name, module_id, project_id, description, status, execution, order_in_module, projects!inner(slug), modules!inner(slug)",
+    "id, name, module_id, project_id, description, status, execution, order_in_module, status_change_date, projects!inner(slug), modules!inner(slug)",
   test_case_steps: "id, action, input_data, expected_result, order",
 };
 

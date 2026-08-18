@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import FormFieldWithLabel from "../common/FormFieldWithLabel/FormFieldWithLabel";
 import * as Dialog from "@radix-ui/react-dialog";
+import type { TestCaseStatusSelect } from "../../types/testCase";
 
 interface PopupProps {
   action:
@@ -12,12 +13,16 @@ interface PopupProps {
     | "editModule"
     | "deleteModule"
     | "deleteTestCases"
-    | "changeTestCaseStatus";
+    | "changeTestCaseStatus"
+    | "resetExecutionDate";
   moduleName?: string;
   config: any;
   onCancel: () => void;
-  onSubmit: (selectedValue: string, formData?: any) => void;
-  type: "edit" | "create" | "confirmDelete" | "option" | undefined;
+  onSubmit: (
+    selectedValue: TestCaseStatusSelect,
+    formData?: Record<string, string | boolean>,
+  ) => void;
+  type: "edit" | "create" | "confirm" | "confirmDelete" | "option" | undefined;
   checkedItemsCounter?: number;
   dataTestId?: string;
 }
@@ -31,8 +36,12 @@ export default function Popup({
   checkedItemsCounter,
   dataTestId,
 }: PopupProps) {
-  const [selectedValue, setSelectedValue] = useState<string>("");
-  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [selectedValue, setSelectedValue] = useState<
+    "Todo" | "Passed" | "Failed" | "Skipped"
+  >("Todo");
+  const [formData, setFormData] = useState<Record<string, string | boolean>>(
+    {},
+  );
 
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
     null,
@@ -41,8 +50,13 @@ export default function Popup({
   useEffect(() => {
     if (config.fields && config.fields.length > 0) {
       const initialFormData = config.fields.reduce(
-        (acc: Record<string, string>, field: any) => {
-          acc[field.name] = field.name === "moduleName" ? moduleName || "" : "";
+        (acc: Record<string, string | boolean>, field: any) => {
+          if (field.type === "checkbox") {
+            acc[field.name] = false;
+          } else {
+            acc[field.name] =
+              field.name === "moduleName" ? moduleName || "" : "";
+          }
           return acc;
         },
         {},
@@ -52,7 +66,19 @@ export default function Popup({
     }
   }, [config.fields, moduleName]);
 
-  function handleSelectChange(fieldName: string, selectedValue: string) {
+  function renderSubtitle() {
+    if (typeof config.subtitle !== "function") return;
+    if (action === "deleteModule") {
+      return config.subtitle(moduleName);
+    } else {
+      return config.subtitle(checkedItemsCounter || "undefined");
+    }
+  }
+
+  function handleSelectChange(
+    fieldName: string,
+    selectedValue: TestCaseStatusSelect,
+  ) {
     setSelectedValue(selectedValue);
     setFormData((prev) => ({
       ...prev,
@@ -60,18 +86,14 @@ export default function Popup({
     }));
   }
 
-  function renderSubtitle() {
-    if (typeof config.subtitle === "function" && action === "deleteModule") {
-      return config.subtitle(moduleName);
-    } else if (
-      typeof config.subtitle === "function" &&
-      action === "deleteTestCases"
-    ) {
-      return config.subtitle(checkedItemsCounter || "undefined");
-    }
+  function handleInputChange(fieldName: string, newValue: string) {
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName]: newValue,
+    }));
   }
 
-  function handleInputChange(fieldName: string, newValue: string) {
+  function handleCheckboxChange(fieldName: string, newValue: boolean) {
     setFormData((prev) => ({
       ...prev,
       [fieldName]: newValue,
@@ -124,32 +146,34 @@ export default function Popup({
             />
 
             <div className={styles.popupFields}>
-              {(action === "editModule" ||
-                action === "newModule" ||
-                action === "changeTestCaseStatus" ||
-                action === "newProject") &&
-                config.fields?.map((field: any) => {
-                  return (
-                    <FormFieldWithLabel
-                      key={field.id}
-                      type={field.type}
-                      label={field.label}
-                      id={field.id}
-                      name={field.name}
-                      value={formData[field.name as string] || ""}
-                      options={field.options}
-                      badge={field.badge}
-                      onValueChange={(value) =>
-                        handleInputChange(field.name, value)
-                      }
-                      onSelectChange={(value) =>
-                        handleSelectChange(field.name, value)
-                      }
-                      placeholder={field.placeholder}
-                      portalContainer={portalContainer}
-                    />
-                  );
-                })}
+              {config.fields?.map((field: any) => {
+                const rawValue = formData[field.name as string];
+
+                return (
+                  <FormFieldWithLabel
+                    key={field.id}
+                    type={field.type}
+                    label={field.label}
+                    id={field.id}
+                    name={field.name}
+                    value={typeof rawValue === "string" ? rawValue : ""}
+                    checked={typeof rawValue === "boolean" ? rawValue : false}
+                    options={field.options}
+                    badge={field.badge}
+                    onValueChange={(value) =>
+                      handleInputChange(field.name, value)
+                    }
+                    onSelectChange={(value) =>
+                      handleSelectChange(field.name, value)
+                    }
+                    onCheckboxChange={(checked) =>
+                      handleCheckboxChange(field.name, checked)
+                    }
+                    placeholder={field.placeholder}
+                    portalContainer={portalContainer}
+                  />
+                );
+              })}
             </div>
 
             <div className={styles.subtitle}>{renderSubtitle()}</div>
@@ -164,8 +188,7 @@ export default function Popup({
               <button
                 onClick={() => onSubmit(selectedValue, formData)}
                 className={clsx(
-                  config.type === "edit" && styles.ctaBtnEdit,
-                  config.type === "create" && styles.ctaBtnEdit,
+                  config.type !== "confirmDelete" && styles.ctaBtnConfirm,
                   config.type === "confirmDelete" && styles.ctaBtnConfirmDelete,
                 )}
               >

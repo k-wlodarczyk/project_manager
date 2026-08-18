@@ -5,13 +5,15 @@ export type PopupAction =
   | "editModule"
   | "deleteModule"
   | "deleteTestCases"
-  | "changeTestCaseStatus";
+  | "changeTestCaseStatus"
+  | "resetExecutionDate";
 
 export type PopupField = {
   name: string;
   label: string;
   id?: string;
-  type: "input" | "select";
+  type: "input" | "select" | "checkbox";
+  defaultValue?: boolean;
   placeholder?: string;
   options?: any[];
   badge?: boolean;
@@ -23,7 +25,7 @@ export interface PopupSetting {
   subtitle: string | ((param: string | number) => ReactNode);
   confirmLabel: string;
   cancelLabel: string;
-  type: "edit" | "confirmDelete";
+  type: "edit" | "confirm" | "confirmDelete";
   fields?: PopupField[];
 }
 
@@ -108,6 +110,25 @@ export const POPUP_CONFIG: Record<PopupAction, PopupSetting> = {
         placeholder: "Select new status...",
         styleTarget: "container",
       },
+      {
+        label: "Reset last execution date",
+        type: "checkbox",
+        name: "resetExecutionDate",
+        id: "resetExecutionDate",
+      },
     ],
+  },
+  resetExecutionDate: {
+    title: "Reset execution date",
+    subtitle: (checkedTestCasesCounter: string | number) => (
+      <>
+        Are you sure you want to reset execution date of{" "}
+        <strong>{checkedTestCasesCounter}</strong> test cases? This action
+        cannot be undone.
+      </>
+    ),
+    confirmLabel: "Approve",
+    cancelLabel: "Cancel",
+    type: "confirm",
   },
 };

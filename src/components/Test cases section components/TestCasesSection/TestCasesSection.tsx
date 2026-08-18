@@ -15,7 +15,12 @@ import { useModalSubmit } from "../../../hooks/useModalSubmit";
 import Actionbar from "../Actionbar/Actionbar";
 import TestCasesList from "../TestCasesList/TestCasesList";
 import { useReorderItems } from "../../../hooks/useReorderItems";
-import type { TestCase, TestCaseWithRelations } from "../../../types/testCase";
+import type {
+  TestCase,
+  TestCaseStatus,
+  TestCaseStatusSelect,
+  TestCaseWithRelations,
+} from "../../../types/testCase";
 
 export default function TestCasesSection() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -36,6 +41,7 @@ export default function TestCasesSection() {
     | "deleteTestCases"
     | "editModule"
     | "changeTestCaseStatus"
+    | "resetExecutionDate"
   >("deleteModule");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isCopy, setIsCopy] = useState<boolean>(false);
@@ -44,7 +50,11 @@ export default function TestCasesSection() {
   );
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [selectedDropdownOption, setSelectedDropdownOption] = useState<
-    undefined | "changeTestCaseStatus" | "changeModule" | "deleteTestCases"
+    | undefined
+    | "changeTestCaseStatus"
+    | "changeModule"
+    | "deleteTestCases"
+    | "resetExecutionDate"
   >(undefined);
   const [localTestCases, setLocalTestCases] = useState<any[]>([]);
   const [checkedTestCases, setCheckedTestCases] = useState<number[]>([]);
@@ -82,8 +92,12 @@ export default function TestCasesSection() {
     setLocalTestCases(testCases);
   }, [testCases]);
 
-  const { deleteTestCases, updateTestCasesStatus, exportTestCasesToXlsx } =
-    useTestCases(checkedTestCases);
+  const {
+    deleteTestCases,
+    updateTestCasesStatus,
+    resetExecutionDate,
+    exportTestCasesToXlsx,
+  } = useTestCases(checkedTestCases);
 
   const { submitModules, updateModule, deleteModule } = useModalSubmit({
     onSuccess: handleClosePopup,
@@ -306,9 +320,17 @@ export default function TestCasesSection() {
   }
 
   async function handleSelectDropdownOption(
-    option: "changeTestCaseStatus" | "deleteTestCases" | "exportXlsx",
+    option:
+      | "changeTestCaseStatus"
+      | "deleteTestCases"
+      | "resetExecutionDate"
+      | "exportXlsx",
   ) {
-    if (option === "changeTestCaseStatus" || option === "deleteTestCases") {
+    if (
+      option === "changeTestCaseStatus" ||
+      option === "deleteTestCases" ||
+      option === "resetExecutionDate"
+    ) {
       setSelectedDropdownOption(option);
       setPopupAction(option);
       setIsPopupOpen(true);
@@ -317,12 +339,20 @@ export default function TestCasesSection() {
     }
   }
 
-  async function handleSubmitPopup(selectedOption?: any, formData?: any) {
+  async function handleSubmitPopup(
+    selectedOption?: TestCaseStatusSelect,
+    formData?: Record<string, string | boolean>,
+  ) {
     if (selectedDropdownOption === "changeTestCaseStatus") {
-      if (selectedOption === "Todo") {
-        selectedOption = "To Do";
+      if (!selectedOption) {
+        console.error("Status is required to change test case status");
+        return;
       }
-      await updateTestCasesStatus(selectedOption);
+      const statusToSave: TestCaseStatus =
+        selectedOption === "Todo" ? "To Do" : selectedOption;
+      const checkedResetExecutionDate: boolean =
+        !!formData?.resetExecutionDate || false;
+      await updateTestCasesStatus(statusToSave, checkedResetExecutionDate);
       refresh();
     } else if (selectedDropdownOption === "deleteTestCases") {
       await deleteTestCases();
@@ -333,6 +363,9 @@ export default function TestCasesSection() {
       await updateModule({ formData, moduleId: popupModuleId });
     } else if (popupAction === "newModule") {
       await submitModules(formData);
+    } else if (popupAction === "resetExecutionDate") {
+      await resetExecutionDate();
+      refresh();
     }
 
     setPopupModuleName(undefined);
@@ -484,16 +517,6 @@ export default function TestCasesSection() {
         />
       )}
 
-      {isModalOpen && isPopupOpen && modalType === "modules" && (
-        <Popup
-          action={"editModule"}
-          config={POPUP_CONFIG["newModule"]}
-          onCancel={handleClosePopup}
-          onSubmit={handleSubmitPopup}
-          type={POPUP_CONFIG[popupAction].type}
-        />
-      )}
-
       {isPopupOpen && (
         <Popup
           moduleName={popupModuleName}
@@ -503,6 +526,7 @@ export default function TestCasesSection() {
           onSubmit={handleSubmitPopup}
           type={POPUP_CONFIG[popupAction].type}
           checkedItemsCounter={checkedTestCases.length}
+          dataTestId={popupAction + "Popup"}
         />
       )}
     </div>

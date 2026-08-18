@@ -56,12 +56,12 @@
   background-color: rgb(228, 212, 241);
 }
 
-.ctaBtnEdit {
+.ctaBtnConfirm {
   background-color: rgb(99, 14, 212);
   color: #fff;
 }
 
-.ctaBtnEdit:hover {
+.ctaBtnConfirm:hover {
   background-color: rgba(100, 14, 212, 0.788);
 }
 
